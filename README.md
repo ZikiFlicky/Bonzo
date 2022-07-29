@@ -39,8 +39,8 @@ To run the hello-world file:
 ```
 
 ## Todo
-* [*] Generate regex
-* [] Our own matching engine
-* [] More regex syntaxes
-* [] Better errors (show position in runtime errors)
-* [] Better argument handling
+- [x] Generate regex
+- [ ] Our own matching engine
+- [ ] More regex syntaxes
+- [ ] Better errors (show position in runtime errors)
+- [ ] Better argument handling
