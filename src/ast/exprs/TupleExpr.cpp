@@ -1,0 +1,22 @@
+#include "TupleExpr.h"
+
+#include <runtime/values/TupleValue.h>
+
+#include <memory>
+
+TupleExpr::TupleExpr(StreamSnippet snippet, std::vector<std::shared_ptr<Expr>> arguments)
+    : Expr(snippet), m_arguments(arguments) {
+}
+
+ErrorOr<std::shared_ptr<RegValue>> TupleExpr::eval(Interpreter& interpreter) {
+    (void)interpreter;
+    // Loop tuple arguments
+    std::vector<std::shared_ptr<RegValue>> values;
+    for (auto argument : m_arguments) {
+        auto maybe_evaluated = argument->eval(interpreter);
+        if (maybe_evaluated.is_error())
+            return { };
+        values.push_back(maybe_evaluated.value());
+    }
+    return std::shared_ptr<RegValue>(new TupleValue(interpreter, values));
+}
