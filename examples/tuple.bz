@@ -1,0 +1,3 @@
+rule tuple { [ 'This' 'is' 'a' 'Tuple' ] } ;; A tuple
+rule mapped { Map { NoCase tuple } } ;; A new tuple
+match mapped

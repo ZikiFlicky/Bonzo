@@ -1,0 +1,3 @@
+func manyOfString [ string ] { Some { string } }
+match manyOfString { 'Lol' }
+match manyOfString { NoCase { 'Lol' } }

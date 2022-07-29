@@ -1,0 +1,15 @@
+rule someSpacing { Some { Spacing } }
+;; Defines sentence generation functions
+rule word { Some { Character } }
+func basicSentence [ wordRules ] { Separated { wordRules someSpacing } }
+func sentence [ sentences ] { Separated { Map { basicSentence sentences } (',' + someSpacing) } + '.' }
+func noCaseSentence [sentenceTuple] { Map { NoCase sentenceTuple } }
+;; Basic sentence rules
+rule name { 'Ziki' | 'John' }
+;; Redefine name
+rule name { word }
+rule howAreYouNameSentence { sentence { [ noCaseSentence { [ 'how' 'are' 'you' ] } [ name ] ] } }
+rule whoAreYouNameSentence { sentence { [ noCaseSentence { [ 'who' 'are' 'you' ] } [ name ] ] } }
+rule line { howAreYouNameSentence | whoAreYouNameSentence }
+
+match line

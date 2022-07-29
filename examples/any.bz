@@ -1,0 +1,2 @@
+rule thing { Any { [ 'Food' 'Water' 'Cat' ] } }
+match thing

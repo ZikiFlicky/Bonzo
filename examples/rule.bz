@@ -1,0 +1,2 @@
+rule LottaSpacing { Some { Spacing } }
+match LottaSpacing

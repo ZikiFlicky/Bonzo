@@ -1,0 +1,5 @@
+rule word { Some { Character } }
+rule someSpacing { Some { Spacing } }
+match someSpacing
+rule sentence { word + (ArbitraryLength { someSpacing + word }) + '.' }
+match sentence
