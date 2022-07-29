@@ -1,7 +1,7 @@
 #pragma once
 
 #include <parsing/stream/StreamSnippet.h>
-#include <runtime/values/abstract/RegValue.h>
+#include <runtime/values/abstract/Value.h>
 #include <runtime/Interpreter.h>
 #include <utils/ErrorOr.h>
 
@@ -12,7 +12,7 @@ public:
     virtual ~Expr() { }
 
     StreamSnippet snippet() { return m_snippet; }
-    virtual ErrorOr<std::shared_ptr<RegValue>> eval(Interpreter& interpreter) = 0;
+    virtual ErrorOr<std::shared_ptr<Value>> eval(Interpreter& interpreter) = 0;
 
 private:
     StreamSnippet m_snippet;

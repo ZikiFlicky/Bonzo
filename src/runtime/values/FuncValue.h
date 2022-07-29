@@ -12,7 +12,7 @@ public:
 
     bool is_callable() override { return true; }
 
-    ErrorOr<std::shared_ptr<RegValue>> call(std::vector<std::shared_ptr<RegValue>> arguments) override;
+    ErrorOr<std::shared_ptr<Value>> call(std::vector<std::shared_ptr<Value>> arguments) override;
 
 private:
     std::vector<std::string> m_parameter_names;

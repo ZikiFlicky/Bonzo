@@ -72,7 +72,7 @@ void Interpreter::leave_scope() {
     m_top_scope = prev;
 }
 
-void Interpreter::set_variable(std::string name, std::shared_ptr<RegValue> value) {
+void Interpreter::set_variable(std::string name, std::shared_ptr<Value> value) {
     // Loop scopes and if you find the variable name replace it with the value
     for (auto scope = m_top_scope; scope; scope = scope->prev()) {
         if (scope->contains_variable(name)) {
@@ -84,11 +84,11 @@ void Interpreter::set_variable(std::string name, std::shared_ptr<RegValue> value
     m_top_scope->set_variable(name, value);
 }
 
-void Interpreter::set_local_variable(std::string name, std::shared_ptr<RegValue> value) {
+void Interpreter::set_local_variable(std::string name, std::shared_ptr<Value> value) {
     m_top_scope->set_variable(name, value);
 }
 
-std::shared_ptr<RegValue> Interpreter::get_variable(std::string name) {
+std::shared_ptr<Value> Interpreter::get_variable(std::string name) {
     // Loop scopes and if you find the variable name return the value
     for (auto scope = m_top_scope; scope; scope = scope->prev()) {
         if (scope->contains_variable(name))
@@ -97,7 +97,7 @@ std::shared_ptr<RegValue> Interpreter::get_variable(std::string name) {
     return nullptr;
 }
 
-bool Interpreter::expect_arguments_size(std::vector<std::shared_ptr<RegValue>> arguments, size_t size) {
+bool Interpreter::expect_arguments_size(std::vector<std::shared_ptr<Value>> arguments, size_t size) {
     if (arguments.size() != size) {
         set_error("expected " + std::to_string(size) + " arguments but got " + std::to_string(arguments.size()) + " instead");
         return false;
@@ -105,24 +105,24 @@ bool Interpreter::expect_arguments_size(std::vector<std::shared_ptr<RegValue>> a
     return true;
 }
 
-ErrorOr<std::shared_ptr<RegValue>> Interpreter::builtin_function_arbitrary_length(std::vector<std::shared_ptr<RegValue>> arguments) {
+ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_arbitrary_length(std::vector<std::shared_ptr<Value>> arguments) {
     if (!expect_arguments_size(arguments, 1))
         return { };
     auto arg = arguments[0];
     if (!verify_matchable(arg))
         return { };
-    return std::shared_ptr<RegValue>(new ArbitraryLengthValue(*this, arg));
+    return std::shared_ptr<Value>(new ArbitraryLengthValue(*this, arg));
 }
 
-ErrorOr<std::shared_ptr<RegValue>> Interpreter::builtin_function_some(std::vector<std::shared_ptr<RegValue>> arguments) {
+ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_some(std::vector<std::shared_ptr<Value>> arguments) {
     if (!expect_arguments_size(arguments, 1))
         return { };
     if (!verify_matchable(arguments[0]))
         return { };
-    return std::shared_ptr<RegValue>(new SomeValue(*this, arguments[0]));
+    return std::shared_ptr<Value>(new SomeValue(*this, arguments[0]));
 }
 
-ErrorOr<std::shared_ptr<RegValue>> Interpreter::builtin_function_any(std::vector<std::shared_ptr<RegValue>> arguments) {
+ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_any(std::vector<std::shared_ptr<Value>> arguments) {
     if (!expect_arguments_size(arguments, 1))
         return { };
     if (!arguments[0]->is_tuple()) {
@@ -132,10 +132,10 @@ ErrorOr<std::shared_ptr<RegValue>> Interpreter::builtin_function_any(std::vector
     auto tuple = arguments[0]->tuple();
     if (!verify_matchable(tuple->values()))
         return { };
-    return std::shared_ptr<RegValue>(new OrValue(*this, tuple->values()));
+    return std::shared_ptr<Value>(new OrValue(*this, tuple->values()));
 }
 
-ErrorOr<std::shared_ptr<RegValue>> Interpreter::builtin_function_separated(std::vector<std::shared_ptr<RegValue>> arguments) {
+ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_separated(std::vector<std::shared_ptr<Value>> arguments) {
     if (!expect_arguments_size(arguments, 2))
         return { };
     if (!arguments[0]->is_tuple()) {
@@ -147,10 +147,10 @@ ErrorOr<std::shared_ptr<RegValue>> Interpreter::builtin_function_separated(std::
         return { };
     if (!verify_matchable(arguments[1]))
         return { };
-    return std::shared_ptr<RegValue>(new SeparatedValue(*this, tuple->values(), arguments[1]));
+    return std::shared_ptr<Value>(new SeparatedValue(*this, tuple->values(), arguments[1]));
 }
 
-ErrorOr<std::shared_ptr<RegValue>> Interpreter::builtin_function_map(std::vector<std::shared_ptr<RegValue>> arguments) {
+ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_map(std::vector<std::shared_ptr<Value>> arguments) {
     if (!expect_arguments_size(arguments, 2))
         return { };
     if (!arguments[0]->is_callable()) {
@@ -163,7 +163,7 @@ ErrorOr<std::shared_ptr<RegValue>> Interpreter::builtin_function_map(std::vector
         return { };
     }
     auto tuple = arguments[1]->tuple();
-    std::vector<std::shared_ptr<RegValue>> mapped_values;
+    std::vector<std::shared_ptr<Value>> mapped_values;
     for (auto value : tuple->values()) {
         auto maybe_mapped = callable->call({ value });
         if (maybe_mapped.is_error())
@@ -171,10 +171,10 @@ ErrorOr<std::shared_ptr<RegValue>> Interpreter::builtin_function_map(std::vector
         mapped_values.push_back(maybe_mapped.value());
     }
     // FIXME: Verify arguments are valid
-    return std::shared_ptr<RegValue>(new TupleValue(*this, mapped_values));
+    return std::shared_ptr<Value>(new TupleValue(*this, mapped_values));
 }
 
-ErrorOr<std::shared_ptr<RegValue>> Interpreter::builtin_function_nocase(std::vector<std::shared_ptr<RegValue>> arguments) {
+ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_nocase(std::vector<std::shared_ptr<Value>> arguments) {
     if (!expect_arguments_size(arguments, 1))
         return { };
 
@@ -185,12 +185,12 @@ ErrorOr<std::shared_ptr<RegValue>> Interpreter::builtin_function_nocase(std::vec
     }
     auto string = arguments[0]->string();
 
-    std::vector<std::shared_ptr<RegValue>> summed_values;
+    std::vector<std::shared_ptr<Value>> summed_values;
     for (size_t i = 0; i < string->string().length(); ++i) {
-        std::shared_ptr<RegValue> value;
+        std::shared_ptr<Value> value;
         auto c = string->string()[i];
         if (isalpha(c)) {
-            value = std::shared_ptr<RegValue>(new CharChoiceValue(*this, { tolower(c), toupper(c) }));
+            value = std::shared_ptr<Value>(new CharChoiceValue(*this, { tolower(c), toupper(c) }));
         } else {
             // Create substring until next alpha character
             auto start_index = i;
@@ -198,16 +198,16 @@ ErrorOr<std::shared_ptr<RegValue>> Interpreter::builtin_function_nocase(std::vec
                 if (isalpha(string->string()[i]))
                     break;
             }
-            value = std::shared_ptr<RegValue>(new StringValue(*this, string->string().substr(start_index, i - start_index)));
+            value = std::shared_ptr<Value>(new StringValue(*this, string->string().substr(start_index, i - start_index)));
         }
         summed_values.push_back(value);
     }
 
     // Return sum value
-    return std::shared_ptr<RegValue>(new SumValue(*this, summed_values));
+    return std::shared_ptr<Value>(new SumValue(*this, summed_values));
 }
 
-ErrorOr<std::shared_ptr<RegValue>> Interpreter::builtin_function_optional(std::vector<std::shared_ptr<RegValue>> arguments) {
+ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_optional(std::vector<std::shared_ptr<Value>> arguments) {
     if (!expect_arguments_size(arguments, 1))
         return { };
 
@@ -216,10 +216,10 @@ ErrorOr<std::shared_ptr<RegValue>> Interpreter::builtin_function_optional(std::v
     auto matchable = arguments[0];
 
     // Return sum value
-    return std::shared_ptr<RegValue>(new OptionalValue(*this, matchable));
+    return std::shared_ptr<Value>(new OptionalValue(*this, matchable));
 }
 
-bool Interpreter::verify_matchable(std::shared_ptr<RegValue> value) {
+bool Interpreter::verify_matchable(std::shared_ptr<Value> value) {
     if (!value->can_be_matched()) {
         // TODO: Better error
         set_error("not matchable");
@@ -228,7 +228,7 @@ bool Interpreter::verify_matchable(std::shared_ptr<RegValue> value) {
     return true;
 }
 
-bool Interpreter::verify_matchable(std::vector<std::shared_ptr<RegValue>> values) {
+bool Interpreter::verify_matchable(std::vector<std::shared_ptr<Value>> values) {
     for (auto value : values) {
         if (!verify_matchable(value))
             return false;

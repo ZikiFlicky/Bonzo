@@ -8,7 +8,7 @@ InvocationExpr::InvocationExpr(StreamSnippet snippet, std::shared_ptr<Expr> invo
 InvocationExpr::~InvocationExpr() {
 }
 
-ErrorOr<std::shared_ptr<RegValue>> InvocationExpr::eval(Interpreter& interpreter) {
+ErrorOr<std::shared_ptr<Value>> InvocationExpr::eval(Interpreter& interpreter) {
     (void)interpreter;
     auto maybe_value = m_invoked->eval(interpreter);
     // If errored
@@ -22,7 +22,7 @@ ErrorOr<std::shared_ptr<RegValue>> InvocationExpr::eval(Interpreter& interpreter
     }
     auto callable = value->callable();
     // Loop tuple arguments
-    std::vector<std::shared_ptr<RegValue>> arguments;
+    std::vector<std::shared_ptr<Value>> arguments;
     for (auto argument : m_arguments) {
         auto maybe_evaluated = argument->eval(interpreter);
         if (maybe_evaluated.is_error())

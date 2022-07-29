@@ -1,11 +1,11 @@
 #pragma once
 
-#include <runtime/values/abstract/RegValue.h>
+#include <runtime/values/abstract/Value.h>
 
-class SomeValue : public RegValue {
+class SomeValue : public Value {
 public:
-    SomeValue(Interpreter& interpreter, std::shared_ptr<RegValue> value)
-        : RegValue(interpreter), m_value(value) { }
+    SomeValue(Interpreter& interpreter, std::shared_ptr<Value> value)
+        : Value(interpreter), m_value(value) { }
 
     std::string generate_regex() override {
         return m_value->generate_regex_as_child() + "+";
@@ -14,5 +14,5 @@ public:
     bool can_be_matched() override { return true; }
 
 private:
-    std::shared_ptr<RegValue> m_value;
+    std::shared_ptr<Value> m_value;
 };

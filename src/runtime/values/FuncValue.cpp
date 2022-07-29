@@ -7,7 +7,7 @@ FuncValue::FuncValue(Interpreter& interpreter, std::vector<std::string> paramete
 FuncValue::~FuncValue() {
 }
 
-ErrorOr<std::shared_ptr<RegValue>> FuncValue::call(std::vector<std::shared_ptr<RegValue>> arguments) {
+ErrorOr<std::shared_ptr<Value>> FuncValue::call(std::vector<std::shared_ptr<Value>> arguments) {
     if (!interpreter().expect_arguments_size(arguments, amount_params())) {
         interpreter().set_error("wrong amount of arguments");
         return { };

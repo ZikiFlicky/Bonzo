@@ -1,18 +1,18 @@
 #pragma once
 
-#include "abstract/RegValue.h"
+#include "abstract/Value.h"
 
 #include <string>
 
-class StringValue : public RegValue {
+class StringValue : public Value {
 public:
     StringValue(Interpreter& interpreter, std::string string)
-        : RegValue(interpreter), m_string(string) { }
+        : Value(interpreter), m_string(string) { }
     ~StringValue() override { }
 
     std::string string() { return m_string; }
 
-    ErrorOr<std::shared_ptr<RegValue>> add_with(std::shared_ptr<RegValue> shared_this, std::shared_ptr<RegValue> rhs) override;
+    ErrorOr<std::shared_ptr<Value>> add_with(std::shared_ptr<Value> shared_this, std::shared_ptr<Value> rhs) override;
 
     bool can_be_matched() override { return true; }
     std::string generate_regex() override;

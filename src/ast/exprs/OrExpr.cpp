@@ -1,7 +1,7 @@
 #include "OrExpr.h"
 #include <runtime/values/OrValue.h>
 
-ErrorOr<std::shared_ptr<RegValue>> OrExpr::eval(Interpreter& interpreter) {
+ErrorOr<std::shared_ptr<Value>> OrExpr::eval(Interpreter& interpreter) {
     (void)interpreter;
     if (eval_lhs_and_rhs(interpreter).is_error())
         return { };

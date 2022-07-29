@@ -6,7 +6,7 @@
 
 class TupleValue : public CollectionValue {
 public:
-    TupleValue(Interpreter& interpreter, std::vector<std::shared_ptr<RegValue>> values)
+    TupleValue(Interpreter& interpreter, std::vector<std::shared_ptr<Value>> values)
         : CollectionValue(interpreter, values) { }
 
     virtual bool is_tuple() override { return true; }

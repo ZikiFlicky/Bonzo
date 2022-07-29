@@ -1,6 +1,6 @@
 #pragma once
 
-#include <runtime/values/abstract/RegValue.h>
+#include <runtime/values/abstract/Value.h>
 
 #include <string>
 #include <unordered_map>
@@ -14,10 +14,10 @@ public:
     Scope* prev() { return m_prev; }
 
     bool contains_variable(std::string name);
-    void set_variable(std::string name, std::shared_ptr<RegValue> value);
-    std::shared_ptr<RegValue> get_variable(std::string name);
+    void set_variable(std::string name, std::shared_ptr<Value> value);
+    std::shared_ptr<Value> get_variable(std::string name);
 
 private:
     Scope* m_prev;
-    std::unordered_map<std::string, std::shared_ptr<RegValue>> m_variables;
+    std::unordered_map<std::string, std::shared_ptr<Value>> m_variables;
 };

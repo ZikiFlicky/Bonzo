@@ -1,7 +1,7 @@
-#include "abstract/RegValue.h"
+#include "abstract/Value.h"
 #include <runtime/Interpreter.h>
 
-class SpecialValue : public RegValue {
+class SpecialValue : public Value {
 public:
     enum Type {
         Character = 1,
@@ -10,7 +10,7 @@ public:
     };
 
     SpecialValue(Interpreter& interpreter, Type type)
-        : RegValue(interpreter), m_type(type) { }
+        : Value(interpreter), m_type(type) { }
 
     bool can_be_matched() { return true; }
 

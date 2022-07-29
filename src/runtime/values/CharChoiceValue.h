@@ -1,13 +1,13 @@
 #pragma once
 
-#include "abstract/RegValue.h"
+#include "abstract/Value.h"
 
 #include <set>
 
-class CharChoiceValue : public RegValue {
+class CharChoiceValue : public Value {
 public:
     CharChoiceValue(Interpreter& interpreter, std::set<int> characters)
-        : RegValue(interpreter), m_characters(characters) { }
+        : Value(interpreter), m_characters(characters) { }
     ~CharChoiceValue() { }
 
     bool can_be_matched() { return true; }
