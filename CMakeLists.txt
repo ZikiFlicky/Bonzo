@@ -18,7 +18,7 @@ set(SOURCES
     src/parsing/Token.cpp
     src/parsing/Lexer.cpp
     src/runtime/values/abstract/CollectionValue.cpp
-    src/runtime/values/abstract/RegValue.cpp
+    src/runtime/values/abstract/Value.cpp
     src/runtime/values/CharChoiceValue.cpp
     src/runtime/values/SeparatedValue.cpp
     src/runtime/values/SumValue.cpp
