@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <cstring>
 
 static bool read_file(std::string filename, std::string* out) {
     std::ifstream file(filename);
@@ -20,11 +21,23 @@ static bool read_file(std::string filename, std::string* out) {
     return true;
 }
 
+static void show_help() {
+    std::cout << "Welcome to the Bonzo regex programming language" << std::endl;
+    std::cout << "bonzo [--help | filename]" << std::endl;
+    std::cout << "  --help: show help message" << std::endl;
+}
+
 int main(int argc, char* argv[]) {
     if (argc < 2) {
-        std::cerr << "Expected filename as argument" << std::endl;
+        show_help();
         return 1;
     }
+
+    if (strcmp(argv[1], "--help") == 0) {
+        show_help();
+        return 0;
+    }
+
     std::string stream;
     if (!read_file(argv[1], &stream)) {
         std::cerr << "Failed to open file '" << argv[1] << "'" << std::endl;
