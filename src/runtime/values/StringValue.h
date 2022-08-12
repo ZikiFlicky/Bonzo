@@ -16,7 +16,7 @@ public:
 
     bool can_be_matched() override { return true; }
     std::string generate_regex() override;
-    bool needs_parens() override { return false; }
+    bool needs_parens() override { return m_string.size() != 1; }
 
     virtual bool is_string() override { return true; }
 
