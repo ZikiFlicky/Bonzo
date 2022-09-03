@@ -7,11 +7,11 @@
 #include <stack>
 #include <iostream>
 
-class TextState {
+class TextPosition {
 public:
-    TextState(size_t line, size_t column, size_t index)
+    TextPosition(size_t line, size_t column, size_t index)
         : m_line(line), m_column(column), m_index(index) { }
-    TextState() { }
+    TextPosition() { }
 
     size_t line() { return m_line; }
     size_t column() { return m_column; }
@@ -25,15 +25,15 @@ private:
 
 class TextSnippet {
 public:
-    TextSnippet(TextState start, TextState end)
+    TextSnippet(TextPosition start, TextPosition end)
         : m_start(start), m_end(end) { }
 
-    TextState& start() { return m_start; }
-    TextState& end() { return m_end; }
+    TextPosition& start() { return m_start; }
+    TextPosition& end() { return m_end; }
     size_t length();
 
 private:
-    TextState m_start, m_end;
+    TextPosition m_start, m_end;
 };
 
 class MatchHandler {
@@ -41,28 +41,28 @@ public:
     explicit MatchHandler(std::string string) : m_string(string) { }
     ~MatchHandler() { }
 
-    TextState& text_state() { return m_text_state; }
+    TextPosition& position() { return m_position; }
 
-    void set_text_state(TextState text_state) { m_text_state = text_state; }
+    void set_position(TextPosition position) { m_position = position; }
 
     char get();
 
 private:
-    TextState m_text_state;
+    TextPosition m_position;
     std::string m_string;
 };
 
 class MatchState {
 public:
     explicit MatchState(MatchHandler& matcher, std::shared_ptr<Value> value)
-        : m_matcher(matcher), m_value(value), m_text_state(matcher.text_state()) { }
+        : m_matcher(matcher), m_value(value), m_position(matcher.position()) { }
     ~MatchState() { }
 
     MatchHandler& matcher() { return m_matcher; }
-    TextState text_state() { return m_text_state; }
+    TextPosition position() { return m_position; }
     size_t index() { return m_index; }
 
-    void set_text_state(TextState state) { m_text_state = state; }
+    void set_position(TextPosition state) { m_position = state; }
 
     void inc_index() { ++m_index; }
     void dec_index() { assert(m_index > 0); --m_index; }
@@ -76,7 +76,7 @@ public:
 private:
     MatchHandler& m_matcher;
     std::shared_ptr<Value> m_value;
-    TextState m_text_state;
+    TextPosition m_position;
     size_t m_index { 0 };
     std::stack<MatchState> m_states;
 };

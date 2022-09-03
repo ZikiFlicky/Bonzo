@@ -17,7 +17,7 @@ std::string SpecialValue::generate_regex() {
 bool SpecialValue::try_match(MatchState& state) {
     if (state.index() > 0)
         return false;
-    auto backtrack = state.text_state();
+    auto backtrack = state.position();
     auto c = state.matcher().get();
     bool success;
     switch (m_type) {
@@ -34,7 +34,7 @@ bool SpecialValue::try_match(MatchState& state) {
         assert(0);
     }
     if (!success) {
-        state.matcher().set_text_state(backtrack);
+        state.matcher().set_position(backtrack);
         return false;
     }
     state.inc_index();

@@ -8,9 +8,9 @@ size_t TextSnippet::length() {
 }
 
 char MatchHandler::get() {
-    auto index = text_state().index();
-    auto line = text_state().line();
-    auto column = text_state().column();
+    auto index = position().index();
+    auto line = position().line();
+    auto column = position().column();
     if (index == m_string.size())
         return '\0';
     auto c = m_string[index++];
@@ -24,14 +24,14 @@ char MatchHandler::get() {
     default:
         ++column;
     }
-    m_text_state = TextState(line, column, index);
+    m_position = TextPosition(line, column, index);
     return c;
 }
 
 void MatchState::pop_state() {
     assert(m_states.size() > 0);
     auto& state = m_states.top();
-    matcher().set_text_state(state.text_state());
+    matcher().set_position(state.position());
     m_states.pop();
 }
 
@@ -51,7 +51,7 @@ std::vector<TextSnippet> SearchProvider::find_from_value(std::shared_ptr<Value> 
         MatchState state(matcher, value);
         while (state.try_match()) {
             // Create snippet from start to end
-            TextSnippet snippet(state.text_state(), matcher.text_state());
+            TextSnippet snippet(state.position(), matcher.position());
             // Ignore snippets of length 0
             if (snippet.length() > 0)
                 snippets.push_back(snippet);

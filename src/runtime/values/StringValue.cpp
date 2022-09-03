@@ -42,10 +42,10 @@ std::string StringValue::generate_regex() {
 bool StringValue::try_match(MatchState& state) {
     if (state.index() > 0)
         return false;
-    auto backtrack = state.text_state();
+    auto backtrack = state.position();
     for (auto c : string()) {
         if (c != state.matcher().get()) {
-            state.matcher().set_text_state(backtrack);
+            state.matcher().set_position(backtrack);
             return false;
         }
     }

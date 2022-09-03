@@ -12,7 +12,7 @@ std::string CharChoiceValue::generate_regex() {
 bool CharChoiceValue::try_match(MatchState& state) {
     if (state.index() > 0)
         return false;
-    auto backtrack = state.matcher().text_state();
+    auto backtrack = state.matcher().position();
     auto character = state.matcher().get();
     for (auto c : m_characters) {
         if (c == character) {
@@ -20,6 +20,6 @@ bool CharChoiceValue::try_match(MatchState& state) {
             return true;
         }
     }
-    state.matcher().set_text_state(backtrack);
+    state.matcher().set_position(backtrack);
     return false;
 }
