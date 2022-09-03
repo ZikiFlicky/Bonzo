@@ -1,16 +1,17 @@
 # Bonzo
-A small language that allows you to define rules for creating regular expressions.
+A small language that allows you to define rules for creating regular expressions and for searching
+for patterns in text.
 
 The language persists only of rules, functions and builtin-functions and allows you
-to easily create regexes.
+to match text or generate regexes in an easy and readable way.
 
 ## Setup
-This was tested only on Ubuntu 20.04.
+This was tested only on my Ubuntu 20.04 machine.
 
 ### Prerequisites
 * *nix machine
 * CMake >=3.16
-* Make
+* GNU Make
 * C++20 compiler
 
 ### Downloading
@@ -33,14 +34,15 @@ The executable, called `bonzo`, will be set in the base directory.
 ### Running
 There are some example files in the `examples/` directory.
 
-To run the hello-world file:
+To run the hello-world example file:
 ```
 ./bonzo examples/hello_world.bz
 ```
 
 ## Todo
 - [x] Generate regex
-- [ ] Our own matching engine
+- [X] Our own matching engine
+- [X] Better argument handling
+- [ ] Show matches in an interactive way (like `less`)
 - [ ] More regex syntaxes
 - [ ] Better errors (show position in runtime errors)
-- [ ] Better argument handling
