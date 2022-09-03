@@ -13,8 +13,21 @@
 
 #include <iostream>
 
-Interpreter::Interpreter(std::vector<std::shared_ptr<Instruction>>& instructions, std::string& compare_text)
-    : m_instructions(instructions), m_compare_text(compare_text) {
+Interpreter::Interpreter(std::vector<std::shared_ptr<Instruction>>& instructions)
+    : m_instructions(instructions), m_operation_type(OperationType::GenerateRegex) {
+    set_base_variables();
+}
+
+Interpreter::Interpreter(std::vector<std::shared_ptr<Instruction>>& instructions, std::string compare_text)
+    : m_instructions(instructions), m_operation_type(OperationType::MatchAgainst), m_compare_text(compare_text) {
+    set_base_variables();
+}
+
+Interpreter::~Interpreter() {
+    leave_scope();
+}
+
+void Interpreter::set_base_variables() {
     // Set base functions
     set_variable("ArbitraryLength",
         std::make_shared<ExtFuncValue>(*this, &Interpreter::builtin_function_arbitrary_length)
@@ -47,10 +60,6 @@ Interpreter::Interpreter(std::vector<std::shared_ptr<Instruction>>& instructions
     set_variable("Newline",
         std::make_shared<SpecialValue>(*this, SpecialValue::Type::Newline)
     );
-}
-
-Interpreter::~Interpreter() {
-    leave_scope();
 }
 
 void Interpreter::set_error(std::string error_message) {

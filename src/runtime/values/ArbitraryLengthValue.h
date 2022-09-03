@@ -7,9 +7,10 @@ public:
     ArbitraryLengthValue(Interpreter& interpreter, std::shared_ptr<Value> value)
         : Value(interpreter), m_value(value) { };
 
-    bool can_be_matched() { return m_value->can_be_matched(); }
+    bool can_be_matched() override { return m_value->can_be_matched(); }
 
-    std::string generate_regex();
+    std::string generate_regex() override;
+    bool try_match(MatchState& state) override;
 
 private:
     std::shared_ptr<Value> m_value;

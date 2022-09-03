@@ -10,7 +10,9 @@ public:
     ExtFuncValue(Interpreter& interpreter, FuncDef func)
         : CallableValue(interpreter), m_func(func) { }
 
-    ErrorOr<std::shared_ptr<Value>> call(std::vector<std::shared_ptr<Value>> arguments);
+    ErrorOr<std::shared_ptr<Value>> call(std::vector<std::shared_ptr<Value>> arguments) override;
+
+    bool try_match(MatchState& state) override { (void)state; assert(0); }
 
 private:
     FuncDef m_func;

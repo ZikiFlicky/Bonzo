@@ -19,16 +19,19 @@ set(SOURCES
     src/parsing/Lexer.cpp
     src/runtime/values/abstract/CollectionValue.cpp
     src/runtime/values/abstract/Value.cpp
+    src/runtime/values/ArbitraryLengthValue.cpp
     src/runtime/values/CharChoiceValue.cpp
-    src/runtime/values/SeparatedValue.cpp
-    src/runtime/values/SumValue.cpp
-    src/runtime/values/OrValue.cpp
+    src/runtime/values/ExtFuncValue.cpp
     src/runtime/values/FuncValue.cpp
+    src/runtime/values/OptionalValue.cpp
+    src/runtime/values/OrValue.cpp
+    src/runtime/values/SeparatedValue.cpp
+    src/runtime/values/SomeValue.cpp
+    src/runtime/values/SumValue.cpp
     src/runtime/values/SpecialValue.cpp
     src/runtime/values/StringValue.cpp
-    src/runtime/values/ExtFuncValue.cpp
-    src/runtime/values/ArbitraryLengthValue.cpp
     src/runtime/Interpreter.cpp
+    src/runtime/MatchHandler.cpp
     src/runtime/Scope.cpp
     src/main.cpp
 )

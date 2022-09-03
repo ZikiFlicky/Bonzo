@@ -2,10 +2,14 @@
 
 #include <memory>
 #include <cassert>
+#include <vector>
 
 #include "utils/ErrorOr.h"
 
 class Interpreter;
+class TextSnippet;
+class MatchHandler;
+class MatchState;
 
 class TupleValue;
 class StringValue;
@@ -25,6 +29,7 @@ public:
     virtual std::string generate_regex() { assert(0); }
     virtual bool needs_parens() { return true; }
     std::string generate_regex_as_child();
+    virtual bool try_match(MatchState& state) = 0;
 
     virtual bool is_tuple() { return false; }
     virtual bool is_string() { return false; }

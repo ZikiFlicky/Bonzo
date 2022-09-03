@@ -1,4 +1,5 @@
 #include "SpecialValue.h"
+#include <runtime/MatchHandler.h>
 
 std::string SpecialValue::generate_regex() {
     switch (m_type) {
@@ -11,4 +12,31 @@ std::string SpecialValue::generate_regex() {
     default:
         assert(0);
     }
+}
+
+bool SpecialValue::try_match(MatchState& state) {
+    if (state.index() > 0)
+        return false;
+    auto backtrack = state.text_state();
+    auto c = state.matcher().get();
+    bool success;
+    switch (m_type) {
+    case Character:
+        success = isalnum(c);
+        break;
+    case Whitespace:
+        success = c == ' ' || c == '\t';
+        break;
+    case Newline:
+        success = c == '\n';
+        break;
+    default:
+        assert(0);
+    }
+    if (!success) {
+        state.matcher().set_text_state(backtrack);
+        return false;
+    }
+    state.inc_index();
+    return true;
 }

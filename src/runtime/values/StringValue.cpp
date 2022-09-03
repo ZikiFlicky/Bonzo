@@ -1,4 +1,5 @@
 #include "StringValue.h"
+#include <runtime/MatchHandler.h>
 
 #include <iostream>
 
@@ -36,4 +37,18 @@ std::string StringValue::generate_regex() {
         generated += c;
     }
     return generated;
+}
+
+bool StringValue::try_match(MatchState& state) {
+    if (state.index() > 0)
+        return false;
+    auto backtrack = state.text_state();
+    for (auto c : string()) {
+        if (c != state.matcher().get()) {
+            state.matcher().set_text_state(backtrack);
+            return false;
+        }
+    }
+    state.inc_index();
+    return true;
 }

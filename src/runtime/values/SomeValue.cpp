@@ -1,18 +1,13 @@
-#include "ArbitraryLengthValue.h"
-#include <runtime/MatchHandler.h>
+#include "SomeValue.h"
 
-std::string ArbitraryLengthValue::generate_regex() {
-    return m_value->generate_regex_as_child() + "*";
+std::string SomeValue::generate_regex() {
+    return m_value->generate_regex_as_child() + "+";
 }
 
-bool ArbitraryLengthValue::try_match(MatchState& state) {
-    if (state.index() == 0) {
-        state.inc_index();
-        return true;
-    }
+bool SomeValue::try_match(MatchState& state) {
     bool need_rematch = false;
     for (;;) {
-        MatchState val_state(state.matcher(), value());
+        MatchState val_state(state.matcher(), m_value);
         if (!need_rematch && val_state.try_match()) {
             state.push_state(val_state);
             state.inc_index();

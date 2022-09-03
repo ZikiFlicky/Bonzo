@@ -1,17 +1,16 @@
 #pragma once
 
 #include <runtime/values/abstract/Value.h>
+#include <runtime/MatchHandler.h>
 
 class SomeValue : public Value {
 public:
     SomeValue(Interpreter& interpreter, std::shared_ptr<Value> value)
         : Value(interpreter), m_value(value) { }
 
-    std::string generate_regex() override {
-        return m_value->generate_regex_as_child() + "+";
-    }
-
     bool can_be_matched() override { return true; }
+    std::string generate_regex() override;
+    bool try_match(MatchState& state) override;
 
 private:
     std::shared_ptr<Value> m_value;

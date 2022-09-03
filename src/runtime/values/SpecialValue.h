@@ -12,10 +12,11 @@ public:
     SpecialValue(Interpreter& interpreter, Type type)
         : Value(interpreter), m_type(type) { }
 
-    bool can_be_matched() { return true; }
+    bool can_be_matched() override { return true; }
 
-    std::string generate_regex();
-    bool needs_parens() { return false; }
+    std::string generate_regex() override;
+    bool needs_parens() override { return false; }
+    bool try_match(MatchState& state) override;
 
 private:
     Type m_type;

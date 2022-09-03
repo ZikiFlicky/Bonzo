@@ -1,5 +1,6 @@
 #include "MatchInstruction.h"
 #include <runtime/Interpreter.h>
+#include <runtime/MatchHandler.h>
 
 #include <iostream>
 
@@ -17,9 +18,23 @@ ErrorOr<void> MatchInstruction::run(Interpreter& interpreter) {
         return false;
     auto value = maybe_value.value();
     if (!value->can_be_matched()) {
-        interpreter.set_error("unable to generate regex from input");
+        interpreter.set_error("input not generable/matchable");
         return false;
     }
-    std::cout << "Generated: " << value->generate_regex() << std::endl;
+    switch (interpreter.operation_type()) {
+    case Interpreter::OperationType::GenerateRegex:
+        std::cout << "Generated: " << value->generate_regex() << std::endl;
+        break;
+    case Interpreter::OperationType::MatchAgainst: {
+        SearchProvider handler(interpreter.compare_text());
+        auto snippets = handler.find_from_value(value);
+        std::cout << "Found " << snippets.size() << " matches (not including the last position)" << (snippets.size() > 0 ? ":" : "") << std::endl;
+        for (auto& s : snippets)
+            std::cout << s.start().to_string() << " -> " << s.end().to_string() << " (length " << s.length() << ")" << std::endl;
+        break;
+    }
+    default:
+        assert(0);
+    }
     return true; // Ran successfully
 }

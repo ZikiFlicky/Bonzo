@@ -9,10 +9,18 @@
 
 class Interpreter final {
 public:
-    Interpreter(std::vector<std::shared_ptr<Instruction>>& instructions, std::string& compare_text);
+    enum OperationType {
+        GenerateRegex = 1,
+        MatchAgainst
+    };
+
+    Interpreter(std::vector<std::shared_ptr<Instruction>>& instructions);
+    Interpreter(std::vector<std::shared_ptr<Instruction>>& instructions, std::string compare_text);
     ~Interpreter();
 
     bool has_errored() { return m_has_errored; }
+    OperationType operation_type() { return m_operation_type; }
+    std::string& compare_text() { return m_compare_text; }
 
     void set_error(std::string error_message);
     void show_error();
@@ -23,13 +31,6 @@ public:
     std::shared_ptr<Value> get_variable(std::string name);
     bool expect_arguments_size(std::vector<std::shared_ptr<Value>> arguments, size_t size);
 
-    template<typename T>
-    T* verify_type(std::shared_ptr<Value> value, std::string error) {
-        T* casted = dynamic_cast<T*>(value);
-        if (!casted)
-            set_error(error);
-        return casted;
-    }
     bool verify_matchable(std::shared_ptr<Value> value);
     bool verify_matchable(std::vector<std::shared_ptr<Value>> values);
 
@@ -40,8 +41,11 @@ private:
     std::string m_error_message { };
 
     std::vector<std::shared_ptr<Instruction>>& m_instructions;
-    std::string& m_compare_text;
     Scope* m_top_scope { new Scope };
+    OperationType m_operation_type;
+    std::string m_compare_text;
+
+    void set_base_variables();
 
     ErrorOr<std::shared_ptr<Value>> builtin_function_arbitrary_length(std::vector<std::shared_ptr<Value>> arguments);
     ErrorOr<std::shared_ptr<Value>> builtin_function_some(std::vector<std::shared_ptr<Value>> arguments);

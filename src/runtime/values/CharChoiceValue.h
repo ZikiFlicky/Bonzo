@@ -10,10 +10,11 @@ public:
         : Value(interpreter), m_characters(characters) { }
     ~CharChoiceValue() { }
 
-    bool can_be_matched() { return true; }
+    bool can_be_matched() override { return true; }
 
-    std::string generate_regex();
-    bool needs_parens() { return false; }
+    std::string generate_regex() override;
+    bool needs_parens() override { return false; }
+    bool try_match(MatchState& state) override;
 
 private:
     std::set<int> m_characters;
