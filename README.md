@@ -46,3 +46,4 @@ To run the hello-world example file:
 - [ ] Show matches in an interactive way (like `less`)
 - [ ] More regex syntaxes
 - [ ] Better errors (show position in runtime errors)
+- [ ] Tests
