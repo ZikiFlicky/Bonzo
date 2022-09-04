@@ -28,7 +28,7 @@ ErrorOr<void> MatchInstruction::run(Interpreter& interpreter) {
     case Interpreter::OperationType::MatchAgainst: {
         SearchProvider handler(interpreter.compare_text());
         auto snippets = handler.find_from_value(value);
-        std::cout << "Found " << snippets.size() << " matches (not including the last position)" << (snippets.size() > 0 ? ":" : "") << std::endl;
+        std::cout << "Found " << snippets.size() << " matches" << (snippets.size() > 0 ? " (not including the last position):" : "") << std::endl;
         for (auto& s : snippets)
             std::cout << s.start().to_string() << " -> " << s.end().to_string() << " (length " << s.length() << ")" << std::endl;
         break;
