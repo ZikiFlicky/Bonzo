@@ -124,12 +124,31 @@ ErrorOr<bool> Lexer::lex_string() {
             set_error("unexpected newline");
             return { };
         } else {
-            if (get_char() == '\'')
+            switch (get_char()) {
+            case '\'':
+                ++m_column;
+                advance();
                 loop_string = false;
-            else
+                break;
+            case '\\': {
+                // Make sure we don't have an eol/eof
+                advance();
+                auto after_escape_backtrack = state();
+                if (read_newline(nullptr)) {
+                    load_state(after_escape_backtrack);
+                    set_error("unexpected newline");
+                    return { };
+                }
+                length += 2;
+                m_column += 2;
+                advance();
+                break;
+            }
+            default:
                 ++length;
-            advance();
-            ++m_column;
+                ++m_column;
+                advance();
+            }
         }
     }
     set_token({ Token::Type::String, start_state, start_index, length });
