@@ -12,6 +12,9 @@ bool ArbitraryLengthValue::try_match(MatchState& state) {
     }
     bool need_rematch = false;
     for (;;) {
+        // If we already had a value and it didn't change our position, we are matching an empty value
+        if (state.has_states() && state.position() == state.matcher().position())
+            return false;
         MatchState val_state(state.matcher(), value());
         if (!need_rematch && val_state.try_match()) {
             state.push_state(val_state);

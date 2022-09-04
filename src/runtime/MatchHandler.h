@@ -19,6 +19,10 @@ public:
 
     std::string to_string() { return "line " + std::to_string(line()) + " column " + std::to_string(column()); }
 
+    bool operator==(TextPosition position) {
+        return position.index() == index();
+    }
+
 private:
     size_t m_line { 1 }, m_column { 1 }, m_index { 0 };
 };
