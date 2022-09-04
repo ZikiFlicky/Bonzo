@@ -27,6 +27,7 @@ class TextSnippet {
 public:
     TextSnippet(TextPosition start, TextPosition end)
         : m_start(start), m_end(end) { }
+    TextSnippet() { }
 
     TextPosition& start() { return m_start; }
     TextPosition& end() { return m_end; }
@@ -44,7 +45,6 @@ public:
     TextPosition& position() { return m_position; }
 
     void set_position(TextPosition position) { m_position = position; }
-
     char get();
 
 private:
@@ -68,6 +68,7 @@ public:
     void dec_index() { assert(m_index > 0); --m_index; }
     void reset_index() { m_index = 0; }
     bool try_match() { return m_value->try_match(*this); }
+    TextSnippet try_match_largest_snippet();
     bool has_states() { return m_states.size() > 0; }
     void push_state(MatchState state) { m_states.push(state); }
     void pop_state();

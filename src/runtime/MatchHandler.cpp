@@ -28,6 +28,25 @@ char MatchHandler::get() {
     return c;
 }
 
+TextSnippet MatchState::try_match_largest_snippet() {
+    if (try_match()) {
+        auto max_position = matcher().position();
+        while (try_match()) {
+            auto new_position = matcher().position();
+            if (new_position.index() > max_position.index())
+                max_position = new_position;
+        }
+        TextSnippet snippet(position(), max_position);
+        // If we got a worthy (length > 0) snippet, return it
+        if (snippet.length() > 0)
+            matcher().set_position(max_position);
+        else // Backtrack position to start
+            matcher().set_position(position());
+        return snippet;
+    }
+    return { };
+}
+
 void MatchState::pop_state() {
     assert(m_states.size() > 0);
     auto& state = m_states.top();
@@ -43,20 +62,17 @@ MatchState& MatchState::top_state() {
 std::vector<TextSnippet> SearchProvider::find_from_value(std::shared_ptr<Value> value) {
     std::vector<TextSnippet> snippets;
     // Create base matcher that can advance through all starting positions
-    MatchHandler base_matcher(m_match_against_string);
-    for (size_t string_index = 0; string_index < m_match_against_string.size(); ++string_index) {
-        // Copy matcher
-        MatchHandler matcher = base_matcher;
+    MatchHandler matcher(m_match_against_string);
+    // Loop while there is at least one character to match against
+    while (matcher.position().index() < m_match_against_string.size()) {
         // Create a state for parsing
         MatchState state(matcher, value);
-        while (state.try_match()) {
-            // Create snippet from start to end
-            TextSnippet snippet(state.position(), matcher.position());
-            // Ignore snippets of length 0
-            if (snippet.length() > 0)
-                snippets.push_back(snippet);
-        }
-        base_matcher.get();
+        TextSnippet snippet = state.try_match_largest_snippet();
+        // Push snippet to vector if it's valuable, otherwise increment read index
+        if (snippet.length() > 0)
+            snippets.push_back(snippet);
+        else
+            matcher.get();
     }
     return snippets;
 }
