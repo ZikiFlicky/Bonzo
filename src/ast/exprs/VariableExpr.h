@@ -6,7 +6,7 @@
 
 class VariableExpr : public Expr {
 public:
-    VariableExpr(StreamSnippet snippet, std::string name)
+    VariableExpr(TextSnippet snippet, std::string name)
         : Expr(snippet), m_name(name) { }
     ~VariableExpr() { }
 

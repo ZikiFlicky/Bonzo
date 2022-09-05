@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Token.h"
-#include "stream/State.h"
+#include <parsing/Token.h>
 #include <utils/ErrorOr.h>
+#include <utils/TextPosition.h>
 
 #include <cstddef>
 #include <string>
@@ -19,15 +19,15 @@ public:
     Token& token() { return m_token; }
     std::string* stream() { return &m_stream; }
     std::string error_message() { return m_error_message; }
-    State error_state() { return m_error_state; }
+    TextPosition error_state() { return m_error_state; }
 
     void set_token(Token the) { m_token = the; }
 
     void advance(size_t amount = 1);
-    State state();
+    TextPosition position();
     ErrorOr<bool> lex();
 
-    void load_state(const State& state);
+    void load_state(const TextPosition& state);
 
     static inline bool is_identifier_start_char(char c) { return isalpha(c) || c == '_'; }
     static inline bool is_identifier_char(char c) { return is_identifier_start_char(c) || isdigit(c); }
@@ -35,7 +35,7 @@ public:
 private:
     bool m_has_errored { false };
     std::string m_error_message { };
-    State m_error_state;
+    TextPosition m_error_state;
 
     std::string& m_stream;
     size_t m_index { 0 };

@@ -4,16 +4,17 @@
 #include <runtime/values/abstract/Value.h>
 #include <runtime/Interpreter.h>
 #include <utils/ErrorOr.h>
+#include <utils/TextSnippet.h>
 
 class Expr {
 public:
-    Expr(StreamSnippet snippet)
+    Expr(TextSnippet snippet)
         : m_snippet(snippet) { }
     virtual ~Expr() { }
 
-    StreamSnippet snippet() { return m_snippet; }
+    TextSnippet snippet() { return m_snippet; }
     virtual ErrorOr<std::shared_ptr<Value>> eval(Interpreter& interpreter) = 0;
 
 private:
-    StreamSnippet m_snippet;
+    TextSnippet m_snippet;
 };

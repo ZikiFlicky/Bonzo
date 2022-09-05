@@ -1,7 +1,7 @@
 #include "InvocationExpr.h"
 #include <runtime/values/FuncValue.h>
 
-InvocationExpr::InvocationExpr(StreamSnippet snippet, std::shared_ptr<Expr> invoked, std::vector<std::shared_ptr<Expr>> arguments)
+InvocationExpr::InvocationExpr(TextSnippet snippet, std::shared_ptr<Expr> invoked, std::vector<std::shared_ptr<Expr>> arguments)
     : Expr(snippet), m_invoked(invoked), m_arguments(arguments) {
 }
 

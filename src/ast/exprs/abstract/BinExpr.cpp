@@ -1,6 +1,6 @@
 #include "BinExpr.h"
 
-BinExpr::BinExpr(StreamSnippet snippet, std::shared_ptr<Expr> lhs, std::shared_ptr<Expr> rhs)
+BinExpr::BinExpr(TextSnippet snippet, std::shared_ptr<Expr> lhs, std::shared_ptr<Expr> rhs)
     : Expr(snippet), m_lhs(lhs), m_rhs(rhs) {
 }
 

@@ -7,7 +7,7 @@
 
 class TupleExpr : public Expr {
 public:
-    TupleExpr(StreamSnippet snippet, std::vector<std::shared_ptr<Expr>> arguments);
+    TupleExpr(TextSnippet snippet, std::vector<std::shared_ptr<Expr>> arguments);
 
     ErrorOr<std::shared_ptr<Value>> eval(Interpreter& interpreter);
 

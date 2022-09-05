@@ -4,7 +4,7 @@
 
 class StringExpr : public Expr {
 public:
-    StringExpr(StreamSnippet snippet, std::string value)
+    StringExpr(TextSnippet snippet, std::string value)
         : Expr(snippet), m_value(value) { }
     ~StringExpr() { }
 

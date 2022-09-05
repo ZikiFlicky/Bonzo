@@ -7,7 +7,7 @@
 
 class InvocationExpr : public Expr {
 public:
-    InvocationExpr(StreamSnippet snippet, std::shared_ptr<Expr> invoked, std::vector<std::shared_ptr<Expr>> arguments);
+    InvocationExpr(TextSnippet snippet, std::shared_ptr<Expr> invoked, std::vector<std::shared_ptr<Expr>> arguments);
     ~InvocationExpr() override;
 
     ErrorOr<std::shared_ptr<Value>> eval(Interpreter& interpreter) override;

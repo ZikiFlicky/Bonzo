@@ -5,7 +5,7 @@
 
 class BinExpr : public Expr {
 public:
-    BinExpr(StreamSnippet snippet, std::shared_ptr<Expr> lhs, std::shared_ptr<Expr> rhs);
+    BinExpr(TextSnippet snippet, std::shared_ptr<Expr> lhs, std::shared_ptr<Expr> rhs);
     virtual ~BinExpr();
 
     ErrorOr<std::shared_ptr<Value>> eval(Interpreter& interpreter) = 0;

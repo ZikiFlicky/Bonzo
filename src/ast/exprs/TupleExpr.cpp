@@ -4,7 +4,7 @@
 
 #include <memory>
 
-TupleExpr::TupleExpr(StreamSnippet snippet, std::vector<std::shared_ptr<Expr>> arguments)
+TupleExpr::TupleExpr(TextSnippet snippet, std::vector<std::shared_ptr<Expr>> arguments)
     : Expr(snippet), m_arguments(arguments) {
 }
 

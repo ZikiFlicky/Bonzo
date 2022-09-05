@@ -14,9 +14,6 @@
 #include <cassert>
 #include <iostream>
 
-Parser::~Parser() {
-}
-
 ErrorOr<bool> Parser::lex() {
     auto maybe_result = m_lexer.lex();
     if (maybe_result.is_error())
@@ -27,12 +24,12 @@ ErrorOr<bool> Parser::lex() {
 
 void Parser::set_error(std::string error_message) {
     m_error_message = error_message;
-    m_error_state = state();
+    m_error_state = position();
     m_has_errored = true;
 }
 
 ErrorOr<bool> Parser::match_token(Token::Type type) {
-    auto backtrack = state();
+    auto backtrack = position();
     auto maybe_result = lex();
 
     if (maybe_result.is_error())
@@ -51,7 +48,7 @@ ErrorOr<bool> Parser::match_token(Token::Type type) {
 }
 
 ErrorOr<bool> Parser::match_newline(bool do_error) {
-    auto backtrack = state();
+    auto backtrack = position();
     auto maybe_result = lex();
 
     if (maybe_result.is_error())
@@ -88,7 +85,7 @@ ErrorOr<bool> Parser::parse_enclosed_arguments(Token::Type start_token, Token::T
     std::vector<std::shared_ptr<Expr>> arguments;
     bool read_arguments = true;
     do {
-        auto backtrack = state();
+        auto backtrack = position();
         // Try to match end token
         auto maybe_matched = match_token(end_token);
         if (maybe_matched.is_error())
@@ -138,7 +135,7 @@ ErrorOr<std::shared_ptr<Expr>> Parser::parse_string() {
             ++index;
         }
     }
-    return std::shared_ptr<Expr>(new StringExpr({ start_state, string_length + 2 }, string));
+    return std::shared_ptr<Expr>(new StringExpr({ start_state, position() }, string));
 }
 
 ErrorOr<std::shared_ptr<Expr>> Parser::parse_variable_expr() {
@@ -150,13 +147,12 @@ ErrorOr<std::shared_ptr<Expr>> Parser::parse_variable_expr() {
         return std::shared_ptr<Expr>(nullptr);
 
     auto start_state = token().start_state();
-    auto length = token().length();
-    return std::shared_ptr<Expr>(new VariableExpr({ start_state, length },
+    return std::shared_ptr<Expr>(new VariableExpr({ start_state, position() },
         token().to_string()));
 }
 
 ErrorOr<std::shared_ptr<Expr>> Parser::parse_tuple() {
-    auto backtrack = state(); // Start state
+    auto backtrack = position(); // Start state
     std::vector<std::shared_ptr<Expr>> arguments;
     auto maybe_arguments = parse_enclosed_arguments(Token::Type::LeftBracket, Token::Type::RightBracket, &arguments);
     if (maybe_arguments.is_error())
@@ -165,8 +161,7 @@ ErrorOr<std::shared_ptr<Expr>> Parser::parse_tuple() {
     if (!maybe_arguments.value())
         return std::shared_ptr<Expr>(nullptr);
 
-    // FIXME: That substitution should not be there (preferably we should just have two states for start and finish)
-    return std::shared_ptr<Expr>(new TupleExpr({ backtrack, state().index() - backtrack.index() }, arguments));
+    return std::shared_ptr<Expr>(new TupleExpr({ backtrack, position() }, arguments));
 }
 
 ErrorOr<std::shared_ptr<Expr>> Parser::parse_parens() {
@@ -234,7 +229,7 @@ ErrorOr<std::shared_ptr<Expr>> Parser::parse_single() {
 }
 
 ErrorOr<std::shared_ptr<Expr>> Parser::parse_invocation() {
-    auto full_backtrack = state(); // Store start state
+    auto full_backtrack = position(); // Store start state
     auto maybe_parsed = parse_single();
     if (maybe_parsed.is_error())
         return { };
@@ -252,7 +247,7 @@ ErrorOr<std::shared_ptr<Expr>> Parser::parse_invocation() {
         if (!maybe_arguments.value())
             break;
         // Create the new expression
-        expr = std::shared_ptr<Expr>(new InvocationExpr({ full_backtrack, state().index() - full_backtrack.index() }, expr, arguments));
+        expr = std::shared_ptr<Expr>(new InvocationExpr({ full_backtrack, position() }, expr, arguments));
     }
 
     return expr;
@@ -269,7 +264,7 @@ ErrorOr<std::shared_ptr<Expr>> Parser::parse_binary_expr() {
         return std::shared_ptr<Expr>(nullptr);
 
     for (;;) {
-        auto backtrack = state();
+        auto backtrack = position();
         auto maybe_lex_result = lex();
 
         if (maybe_lex_result.is_error())
@@ -305,10 +300,10 @@ ErrorOr<std::shared_ptr<Expr>> Parser::parse_binary_expr() {
         }
         switch (token_type) {
         case Token::Type::Pipe:
-            expr = std::shared_ptr<Expr>(new OrExpr({ backtrack, 1 }, expr, rhs));
+            expr = std::shared_ptr<Expr>(new OrExpr({ backtrack, position() }, expr, rhs));
             break;
         case Token::Type::Plus:
-            expr = std::shared_ptr<Expr>(new AddExpr({ backtrack, 1 }, expr, rhs));
+            expr = std::shared_ptr<Expr>(new AddExpr({ backtrack, position() }, expr, rhs));
             break;
         default:
             // TODO: BZ_UNEACHABLE();
@@ -425,7 +420,7 @@ ErrorOr<std::shared_ptr<Instruction>> Parser::parse_func_instruction() {
     std::vector<std::string> parameters;
     bool read_parameters = true;
     do {
-        auto backtrack = state();
+        auto backtrack = position();
         auto maybe_lexed = lex();
         if (maybe_lexed.is_error())
             return { };
@@ -531,7 +526,7 @@ ErrorOr<bool> Parser::parse_all() {
 
 void Parser::show_error() {
     // Decide if to take the error from the lexer or from the parser
-    State state;
+    TextPosition state;
     std::string message;
     if (m_lexer.has_errored()) {
         state = m_lexer.error_state();

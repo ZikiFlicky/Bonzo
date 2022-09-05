@@ -12,7 +12,7 @@ static const struct {
 
 void Lexer::set_error(std::string error_message) {
     m_error_message = error_message;
-    m_error_state = state();
+    m_error_state = position();
     m_has_errored = true;
 }
 
@@ -28,7 +28,7 @@ bool Lexer::remove_comment() {
 
     advance(2);
     for (;;) {
-        auto backtrack = state();
+        auto backtrack = position();
         if (read_newline(nullptr)) {
             // Unadvance the newline so when can lex it in the future
             load_state(backtrack);
@@ -88,7 +88,7 @@ ErrorOr<bool> Lexer::lex_keyword(const std::string& keyword, Token::Type type) {
     if (remaining() < keyword.length())
         return false;
     size_t start_index = m_index;
-    State backtrack = state();
+    TextPosition backtrack = position();
     for (size_t i = 0; i < keyword.length(); ++i) {
         if (keyword[i] != get_char(i))
             return false;
@@ -113,11 +113,11 @@ ErrorOr<bool> Lexer::lex_string() {
 
     size_t start_index = m_index;
     size_t length = 0;
-    State start_state = state();
+    auto start_state = position();
 
     bool loop_string = true;
     while (loop_string) {
-        auto backtrack = state();
+        auto backtrack = position();
         // If found a newline (or end-of-file) before terminating the string, set an error
         if (read_newline(nullptr)) {
             load_state(backtrack);
@@ -133,7 +133,7 @@ ErrorOr<bool> Lexer::lex_string() {
             case '\\': {
                 // Make sure we don't have an eol/eof
                 advance();
-                auto after_escape_backtrack = state();
+                auto after_escape_backtrack = position();
                 if (read_newline(nullptr)) {
                     load_state(after_escape_backtrack);
                     set_error("unexpected newline");
@@ -169,7 +169,7 @@ ErrorOr<bool> Lexer::lex_any_keyword() {
 
 ErrorOr<bool> Lexer::lex_single_character() {
     Token::Type type;
-    auto backtrack = state();
+    auto backtrack = position();
     switch (get_char()) {
     case '|':
         type = Token::Type::Pipe;
@@ -208,7 +208,7 @@ ErrorOr<bool> Lexer::lex_single_character() {
 ErrorOr<bool> Lexer::lex_newline() {
     size_t length;
     size_t start_index = m_index;
-    auto start_state = state();
+    auto start_state = position();
 
     // If not found a newline
     if (!read_newline(&length))
@@ -219,7 +219,7 @@ ErrorOr<bool> Lexer::lex_newline() {
 }
 
 ErrorOr<bool> Lexer::lex_identifier() {
-    auto backtrack = state();
+    auto backtrack = position();
 
     if (!Lexer::is_identifier_start_char(get_char()))
         return false;
@@ -238,11 +238,11 @@ ErrorOr<bool> Lexer::lex_identifier() {
     return true;
 }
 
-State Lexer::state() {
-    return State(&m_stream, m_index, m_line, m_column);
+TextPosition Lexer::position() {
+    return TextPosition(&m_stream, m_index, m_line, m_column);
 }
 
-void Lexer::load_state(const State& state) {
+void Lexer::load_state(const TextPosition& state) {
     m_stream = *state.stream();
     m_index = state.index();
     m_line = state.line();

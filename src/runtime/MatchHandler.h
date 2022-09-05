@@ -1,45 +1,12 @@
 #pragma once
 
 #include <runtime/values/abstract/Value.h>
+#include <utils/TextPosition.h>
 
 #include <string>
 #include <vector>
 #include <stack>
 #include <iostream>
-
-class TextPosition {
-public:
-    TextPosition(size_t line, size_t column, size_t index)
-        : m_line(line), m_column(column), m_index(index) { }
-    TextPosition() { }
-
-    size_t line() { return m_line; }
-    size_t column() { return m_column; }
-    size_t index() { return m_index; }
-
-    std::string to_string() { return "line " + std::to_string(line()) + " column " + std::to_string(column()); }
-
-    bool operator==(TextPosition position) {
-        return position.index() == index();
-    }
-
-private:
-    size_t m_line { 1 }, m_column { 1 }, m_index { 0 };
-};
-
-class TextSnippet {
-public:
-    TextSnippet(TextPosition start, TextPosition end)
-        : m_start(start), m_end(end) { }
-    TextSnippet() { }
-
-    TextPosition& start() { return m_start; }
-    TextPosition& end() { return m_end; }
-    size_t length();
-
-private:
-    TextPosition m_start, m_end;
-};
 
 class MatchHandler {
 public:

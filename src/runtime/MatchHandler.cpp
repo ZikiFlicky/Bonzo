@@ -1,11 +1,5 @@
 #include "MatchHandler.h"
-
-size_t TextSnippet::length() {
-    size_t start_index = m_start.index();
-    size_t end_index = m_end.index();
-    assert(end_index >= start_index);
-    return end_index - start_index;
-}
+#include <utils/TextSnippet.h>
 
 char MatchHandler::get() {
     auto index = position().index();
@@ -24,7 +18,8 @@ char MatchHandler::get() {
     default:
         ++column;
     }
-    m_position = TextPosition(line, column, index);
+    // Set new position
+    m_position = { &m_string, index, line, column };
     return c;
 }
 
