@@ -1,6 +1,6 @@
 #pragma once
 
-#include <parsing/stream/StreamSnippet.h>
+#include <utils/TextSnippet.h>
 #include <runtime/values/abstract/Value.h>
 #include <runtime/Interpreter.h>
 #include <utils/ErrorOr.h>

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Expr.h"
-#include <parsing/stream/StreamSnippet.h>
+#include <utils/TextSnippet.h>
 
 class BinExpr : public Expr {
 public:

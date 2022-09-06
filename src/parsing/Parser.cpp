@@ -1,5 +1,4 @@
 #include "Parser.h"
-#include "stream/StreamSnippet.h"
 #include <ast/exprs/StringExpr.h>
 #include <ast/exprs/VariableExpr.h>
 #include <ast/exprs/OrExpr.h>
@@ -10,6 +9,7 @@
 #include <ast/instructions/RuleInstruction.h>
 #include <ast/instructions/FuncInstruction.h>
 #include <utils/ErrorOr.h>
+#include <utils/TextSnippet.h>
 
 #include <cassert>
 #include <iostream>
