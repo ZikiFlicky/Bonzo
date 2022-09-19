@@ -7,7 +7,7 @@ FuncValue::FuncValue(Interpreter& interpreter, std::string name, std::vector<std
 FuncValue::~FuncValue() {
 }
 
-ErrorOr<std::shared_ptr<Value>> FuncValue::call(CallInfo info) {
+ErrorOr<std::shared_ptr<Value>> FuncValue::call(CallInfo& info) {
     if (interpreter().expect_arguments_size(info, amount_params()).is_error()) {
         interpreter().set_error("wrong amount of arguments", info.call_snippet.start());
         return { };

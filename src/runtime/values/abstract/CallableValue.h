@@ -26,7 +26,7 @@ public:
 
     bool is_callable() override { return true; }
 
-    virtual ErrorOr<std::shared_ptr<Value>> call(CallInfo info) = 0;
+    virtual ErrorOr<std::shared_ptr<Value>> call(CallInfo& info) = 0;
 
 private:
     std::string m_name;

@@ -13,7 +13,7 @@ public:
     bool is_callable() override { return true; }
     bool try_match(MatchState& state) override { (void)state; assert(0); }
 
-    ErrorOr<std::shared_ptr<Value>> call(CallInfo info) override;
+    ErrorOr<std::shared_ptr<Value>> call(CallInfo& info) override;
 
 private:
     std::vector<std::string> m_parameter_names;

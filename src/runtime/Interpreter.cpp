@@ -202,7 +202,7 @@ ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_map(CallInfo& info
     auto tuple = arg2.value->tuple();
     std::vector<std::shared_ptr<Value>> mapped_values;
     for (auto value : tuple->values()) {
-        CallInfo call_info({ { value, { } } }, { });
+        CallInfo call_info = { { { value, { } } }, { } };
         auto maybe_mapped = callable->call(call_info);
         if (maybe_mapped.is_error())
             return { };

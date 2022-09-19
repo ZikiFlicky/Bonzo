@@ -31,7 +31,7 @@ ErrorOr<std::shared_ptr<Value>> InvocationExpr::eval(Interpreter& interpreter) {
             return { };
         arguments.push_back({ maybe_evaluated.value(), argument->snippet() });
     }
-    CallInfo info(arguments, snippet());
+    CallInfo info = { arguments, snippet() };
 
     interpreter.add_call_trace({ snippet().start(), callable->name() });
     // Finally call the callable
