@@ -8,15 +8,11 @@
 
 // TODO: Maybe move this?
 struct ValueSnippetPair {
-    ValueSnippetPair(std::shared_ptr<Value> v, TextSnippet s)
-        : value(v), snippet(s) { }
     std::shared_ptr<Value> value;
     TextSnippet snippet;
 };
 
 struct CallInfo {
-    CallInfo(std::vector<ValueSnippetPair> args, TextSnippet snippet)
-        : arguments(args), call_snippet(snippet) { }
     std::vector<ValueSnippetPair> arguments;
     TextSnippet call_snippet;
 };
