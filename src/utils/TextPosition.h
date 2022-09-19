@@ -15,7 +15,7 @@ public:
     size_t line() const { return m_line; }
     size_t column() const { return m_column; }
 
-    std::string to_string() { return "line " + std::to_string(line()) + " column " + std::to_string(column()); }
+    std::string to_string() { return "[" + std::to_string(line()) + "," + std::to_string(column()) + "]"; }
 
     TextPosition& operator=(const TextPosition& state) = default;
     bool operator==(TextPosition position) {

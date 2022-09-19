@@ -5,7 +5,7 @@
 
 class MatchInstruction : public Instruction {
 public:
-    MatchInstruction(std::shared_ptr<Expr> expr);
+    MatchInstruction(std::shared_ptr<Expr> expr, TextSnippet snippet);
     ~MatchInstruction() override;
 
     ErrorOr<void> run(Interpreter& interpreter) override;

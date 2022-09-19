@@ -1,21 +1,21 @@
 #include "FuncValue.h"
 
-FuncValue::FuncValue(Interpreter& interpreter, std::vector<std::string> parameter_names, std::shared_ptr<Expr> eval_expr)
-    : CallableValue(interpreter), m_parameter_names(parameter_names), m_eval_expr(eval_expr) {
+FuncValue::FuncValue(Interpreter& interpreter, std::string name, std::vector<std::string> parameter_names, std::shared_ptr<Expr> eval_expr)
+    : CallableValue(interpreter, name), m_parameter_names(parameter_names), m_eval_expr(eval_expr) {
 }
 
 FuncValue::~FuncValue() {
 }
 
-ErrorOr<std::shared_ptr<Value>> FuncValue::call(std::vector<std::shared_ptr<Value>> arguments) {
-    if (!interpreter().expect_arguments_size(arguments, amount_params())) {
-        interpreter().set_error("wrong amount of arguments");
+ErrorOr<std::shared_ptr<Value>> FuncValue::call(CallInfo info) {
+    if (interpreter().expect_arguments_size(info, amount_params()).is_error()) {
+        interpreter().set_error("wrong amount of arguments", info.call_snippet.start());
         return { };
     }
     interpreter().enter_new_scope();
     // Set variables
-    for (size_t i = 0; i < m_parameter_names.size(); ++i)
-        interpreter().set_local_variable(m_parameter_names[i], arguments[i]);
+    for (size_t i = 0; i < amount_params(); ++i)
+        interpreter().set_local_variable(m_parameter_names[i], info.arguments[i].value);
     auto evaluated = m_eval_expr->eval(interpreter());
     interpreter().leave_scope();
     return evaluated;

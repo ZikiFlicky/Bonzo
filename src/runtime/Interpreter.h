@@ -3,9 +3,12 @@
 #include "Scope.h"
 #include <ast/instructions/Instruction.h>
 #include <utils/ErrorOr.h>
+#include <utils/TextPosition.h>
+#include <runtime/values/abstract/CallableValue.h>
 
 #include <string>
 #include <vector>
+#include <stack>
 
 class Interpreter final {
 public:
@@ -14,31 +17,40 @@ public:
         MatchAgainst
     };
 
+    struct CallTraceItem {
+        TextPosition position;
+        std::string func_name;
+    };
+
     Interpreter(std::vector<std::shared_ptr<Instruction>>& instructions);
     Interpreter(std::vector<std::shared_ptr<Instruction>>& instructions, std::string compare_text);
     ~Interpreter();
 
-    bool has_errored() { return m_has_errored; }
+    bool has_errored() { return m_has_error; }
     OperationType operation_type() { return m_operation_type; }
     std::string& compare_text() { return m_compare_text; }
 
-    void set_error(std::string error_message);
+    void set_error(std::string error_message, TextPosition position);
     void show_error();
+    void add_call_trace(CallTraceItem position);
+    void remove_call_trace();
     void enter_new_scope();
     void leave_scope();
     void set_variable(std::string name, std::shared_ptr<Value> value);
     void set_local_variable(std::string name, std::shared_ptr<Value> value);
     std::shared_ptr<Value> get_variable(std::string name);
-    bool expect_arguments_size(std::vector<std::shared_ptr<Value>> arguments, size_t size);
+    ErrorOr<void> expect_arguments_size(CallInfo& info, size_t size);
 
-    bool verify_matchable(std::shared_ptr<Value> value);
-    bool verify_matchable(std::vector<std::shared_ptr<Value>> values);
+    ErrorOr<void> verify_matchable(ValueSnippetPair value);
+    ErrorOr<void> verify_matchable(std::vector<std::shared_ptr<Value>> values);
 
     ErrorOr<void> run();
 
 private:
-    bool m_has_errored { false };
+    std::stack<CallTraceItem> m_call_trace;
+    bool m_has_error { false };
     std::string m_error_message { };
+    TextPosition m_error_position;
 
     std::vector<std::shared_ptr<Instruction>>& m_instructions;
     Scope* m_top_scope { new Scope };
@@ -47,11 +59,11 @@ private:
 
     void set_base_variables();
 
-    ErrorOr<std::shared_ptr<Value>> builtin_function_arbitrary_length(std::vector<std::shared_ptr<Value>> arguments);
-    ErrorOr<std::shared_ptr<Value>> builtin_function_some(std::vector<std::shared_ptr<Value>> arguments);
-    ErrorOr<std::shared_ptr<Value>> builtin_function_any(std::vector<std::shared_ptr<Value>> arguments);
-    ErrorOr<std::shared_ptr<Value>> builtin_function_separated(std::vector<std::shared_ptr<Value>> arguments);
-    ErrorOr<std::shared_ptr<Value>> builtin_function_map(std::vector<std::shared_ptr<Value>> arguments);
-    ErrorOr<std::shared_ptr<Value>> builtin_function_nocase(std::vector<std::shared_ptr<Value>> arguments);
-    ErrorOr<std::shared_ptr<Value>> builtin_function_optional(std::vector<std::shared_ptr<Value>> arguments);
+    ErrorOr<std::shared_ptr<Value>> builtin_function_arbitrary_length(CallInfo& info);
+    ErrorOr<std::shared_ptr<Value>> builtin_function_some(CallInfo& info);
+    ErrorOr<std::shared_ptr<Value>> builtin_function_any(CallInfo& info);
+    ErrorOr<std::shared_ptr<Value>> builtin_function_separated(CallInfo& info);
+    ErrorOr<std::shared_ptr<Value>> builtin_function_map(CallInfo& info);
+    ErrorOr<std::shared_ptr<Value>> builtin_function_nocase(CallInfo& info);
+    ErrorOr<std::shared_ptr<Value>> builtin_function_optional(CallInfo& info);
 };

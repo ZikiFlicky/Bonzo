@@ -5,8 +5,8 @@
 #include <iostream>
 
 
-MatchInstruction::MatchInstruction(std::shared_ptr<Expr> expr)
-    : Instruction(), m_expr(expr) {
+MatchInstruction::MatchInstruction(std::shared_ptr<Expr> expr, TextSnippet snippet)
+    : Instruction(snippet), m_expr(expr) {
 }
 
 MatchInstruction::~MatchInstruction() {
@@ -18,7 +18,7 @@ ErrorOr<void> MatchInstruction::run(Interpreter& interpreter) {
         return false;
     auto value = maybe_value.value();
     if (!value->can_be_matched()) {
-        interpreter.set_error("input not generable/matchable");
+        interpreter.set_error("input not generable/matchable", snippet().start());
         return false;
     }
     switch (interpreter.operation_type()) {

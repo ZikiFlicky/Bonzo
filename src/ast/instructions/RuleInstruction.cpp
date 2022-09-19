@@ -2,8 +2,8 @@
 
 #include <iostream>
 
-RuleInstruction::RuleInstruction(std::string name, std::shared_ptr<Expr> expr)
-    : Instruction(), m_name(name), m_expr(expr) {
+RuleInstruction::RuleInstruction(std::string name, std::shared_ptr<Expr> expr, TextSnippet snippet)
+    : Instruction(snippet), m_name(name), m_expr(expr) {
 }
 
 RuleInstruction::~RuleInstruction() {

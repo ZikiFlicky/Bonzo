@@ -4,7 +4,8 @@
 #include <cassert>
 #include <vector>
 
-#include "utils/ErrorOr.h"
+#include <utils/ErrorOr.h>
+#include <utils/TextPosition.h>
 
 class Interpreter;
 class TextSnippet;
@@ -23,8 +24,8 @@ public:
 
     Interpreter& interpreter() { return m_interpreter; }
 
-    virtual ErrorOr<std::shared_ptr<Value>> or_with(std::shared_ptr<Value> shared_this, std::shared_ptr<Value> rhs);
-    virtual ErrorOr<std::shared_ptr<Value>> add_with(std::shared_ptr<Value> shared_this, std::shared_ptr<Value> rhs);
+    virtual ErrorOr<std::shared_ptr<Value>> or_with(std::shared_ptr<Value> shared_this, std::shared_ptr<Value> rhs, TextPosition operator_position);
+    virtual ErrorOr<std::shared_ptr<Value>> add_with(std::shared_ptr<Value> shared_this, std::shared_ptr<Value> rhs, TextPosition operator_position);
     virtual bool can_be_matched() { return false; }
     virtual std::string generate_regex() { assert(0); }
     virtual bool needs_parens() { return true; }

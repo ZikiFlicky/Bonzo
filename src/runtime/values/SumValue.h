@@ -8,7 +8,7 @@ public:
         : CollectionValue(interpreter, values) { };
 
     bool can_be_matched() override { return can_values_be_matched(); }
-    ErrorOr<std::shared_ptr<Value>> add_with(std::shared_ptr<Value> shared_this, std::shared_ptr<Value> rhs) override;
+    ErrorOr<std::shared_ptr<Value>> add_with(std::shared_ptr<Value> shared_this, std::shared_ptr<Value> rhs, TextPosition operator_position) override;
 
     std::string generate_regex() override;
     bool needs_parens() override { return values().size() > 1; }

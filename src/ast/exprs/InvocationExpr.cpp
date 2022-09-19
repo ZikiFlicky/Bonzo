@@ -17,19 +17,28 @@ ErrorOr<std::shared_ptr<Value>> InvocationExpr::eval(Interpreter& interpreter) {
     auto value = maybe_value.value();
     // Verify value is callable
     if (!value->is_callable()) {
-        interpreter.set_error("tried to invoke non-callable");
+        // TODO: Maybe it's better to do this kind of stuff with snippets
+        interpreter.set_error("tried to invoke non-callable", snippet().start());
         return { };
     }
+
     auto callable = value->callable();
     // Loop tuple arguments
-    std::vector<std::shared_ptr<Value>> arguments;
+    std::vector<ValueSnippetPair> arguments;
     for (auto argument : m_arguments) {
         auto maybe_evaluated = argument->eval(interpreter);
         if (maybe_evaluated.is_error())
             return { };
-        arguments.push_back(maybe_evaluated.value());
+        arguments.push_back({ maybe_evaluated.value(), argument->snippet() });
     }
-    // FIXME: This should be cast to a Callable type
+    CallInfo info(arguments, snippet());
+
+    interpreter.add_call_trace({ snippet().start(), callable->name() });
     // Finally call the callable
-    return callable->call(arguments);
+    auto return_value = callable->call(info);
+    if (return_value.is_error())
+        return {};
+    // If succeeded, it means we aren't backtracking an error so we can remove the call position
+    interpreter.remove_call_trace();
+    return return_value.value();
 }

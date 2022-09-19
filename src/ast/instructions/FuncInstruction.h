@@ -7,7 +7,7 @@
 
 class FuncInstruction : public Instruction {
 public:
-    FuncInstruction(std::string name, std::vector<std::string> parameters, std::shared_ptr<Expr> expr);
+    FuncInstruction(std::string name, std::vector<std::string> parameters, std::shared_ptr<Expr> expr, TextSnippet snippet);
     ~FuncInstruction() override;
 
     ErrorOr<void> run(Interpreter& interpreter) override;

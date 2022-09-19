@@ -7,14 +7,13 @@
 
 class FuncValue : public CallableValue {
 public:
-    FuncValue(Interpreter& interpreter, std::vector<std::string> parameter_names, std::shared_ptr<Expr> eval_expr);
+    FuncValue(Interpreter& interpreter, std::string name, std::vector<std::string> parameter_names, std::shared_ptr<Expr> eval_expr);
     ~FuncValue() override;
 
     bool is_callable() override { return true; }
     bool try_match(MatchState& state) override { (void)state; assert(0); }
 
-    ErrorOr<std::shared_ptr<Value>> call(std::vector<std::shared_ptr<Value>> arguments) override;
-
+    ErrorOr<std::shared_ptr<Value>> call(CallInfo info) override;
 
 private:
     std::vector<std::string> m_parameter_names;

@@ -5,7 +5,7 @@
 
 class RuleInstruction : public Instruction {
 public:
-    RuleInstruction(std::string name, std::shared_ptr<Expr> expr);
+    RuleInstruction(std::string name, std::shared_ptr<Expr> expr, TextSnippet snippet);
     ~RuleInstruction();
 
     ErrorOr<void> run(Interpreter& interpreter);

@@ -319,6 +319,7 @@ ErrorOr<std::shared_ptr<Expr>> Parser::parse_expr() {
 }
 
 ErrorOr<std::shared_ptr<Instruction>> Parser::parse_match_instruction() {
+    auto start_position = position();
     auto maybe_result = match_token(Token::Type::Match);
     if (maybe_result.is_error())
         return { };
@@ -336,10 +337,11 @@ ErrorOr<std::shared_ptr<Instruction>> Parser::parse_match_instruction() {
     if (!(expr = maybe_expr_result.value()))
         return std::shared_ptr<Instruction>(nullptr);
 
-    return std::shared_ptr<Instruction>(new MatchInstruction(expr));
+    return std::shared_ptr<Instruction>(new MatchInstruction(expr, { start_position, position() }));
 }
 
 ErrorOr<std::shared_ptr<Instruction>> Parser::parse_rule_instruction() {
+    auto start_position = position();
     ErrorOr<bool> maybe_matched = match_token(Token::Type::Rule);
     if (maybe_matched.is_error())
         return { };
@@ -386,10 +388,11 @@ ErrorOr<std::shared_ptr<Instruction>> Parser::parse_rule_instruction() {
         return { };
     }
 
-    return std::shared_ptr<Instruction>(new RuleInstruction(rule_name, rule_expr));
+    return std::shared_ptr<Instruction>(new RuleInstruction(rule_name, rule_expr, { start_position, position() }));
 }
 
 ErrorOr<std::shared_ptr<Instruction>> Parser::parse_func_instruction() {
+    auto start_position = position();
     ErrorOr<bool> maybe_matched = match_token(Token::Type::Func);
     if (maybe_matched.is_error())
         return { };
@@ -469,7 +472,8 @@ ErrorOr<std::shared_ptr<Instruction>> Parser::parse_func_instruction() {
         return { };
     }
 
-    return std::shared_ptr<Instruction>(new FuncInstruction(func_name, parameters, func_expr));
+    return std::shared_ptr<Instruction>(new FuncInstruction(func_name, parameters, func_expr,
+        { start_position, position() }));
 }
 
 ErrorOr<std::shared_ptr<Instruction>> Parser::parse_instruction() {
