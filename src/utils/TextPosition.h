@@ -18,7 +18,7 @@ public:
 
     TextPosition& operator=(const TextPosition& state) = default;
     bool operator==(TextPosition position) {
-        return position.index() == index();
+        return position.stream() == stream() && position.index() == index();
     }
 
 private:
