@@ -6,9 +6,10 @@ class TextPosition {
 public:
     TextPosition(std::string* stream, size_t index, size_t line, size_t column) 
         : m_stream(stream), m_index(index), m_line(line), m_column(column) { }
-    TextPosition() { }
+    TextPosition() : m_valid(false) { }
     ~TextPosition() { }
 
+    bool valid() { return m_valid; }
     std::string* stream() const { return m_stream; }
     size_t index() const { return m_index; }
     size_t line() const { return m_line; }
@@ -22,6 +23,7 @@ public:
     }
 
 private:
+    bool m_valid { true };
     std::string* m_stream { nullptr };
     size_t m_index { 0 }, m_line { 1 }, m_column { 1 };
 };
