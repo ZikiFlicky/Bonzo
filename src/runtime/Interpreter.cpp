@@ -42,18 +42,18 @@ void Interpreter::set_base_variables() {
     };
     // Set base functions
     for (auto def : func_defs) {
-        auto func = std::make_shared<ExtFuncValue>(*this, def.name, &Interpreter::builtin_function_arbitrary_length);
+        auto func = std::make_shared<ExtFuncValue>(def.name, &Interpreter::builtin_function_arbitrary_length);
         set_variable(def.name, func);
     }
     // Set base variables
     set_variable("Spacing",
-        std::make_shared<SpecialValue>(*this, SpecialValue::Type::Whitespace)
+        std::make_shared<SpecialValue>(SpecialValue::Type::Whitespace)
     );
     set_variable("Character",
-        std::make_shared<SpecialValue>(*this, SpecialValue::Type::Character)
+        std::make_shared<SpecialValue>(SpecialValue::Type::Character)
     );
     set_variable("Newline",
-        std::make_shared<SpecialValue>(*this, SpecialValue::Type::Newline)
+        std::make_shared<SpecialValue>(SpecialValue::Type::Newline)
     );
 }
 
@@ -142,7 +142,7 @@ ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_arbitrary_length(C
     auto arg = info.arguments[0];
     if (verify_matchable(arg).is_error())
         return { };
-    return std::shared_ptr<Value>(new ArbitraryLengthValue(*this, arg.value));
+    return std::shared_ptr<Value>(new ArbitraryLengthValue(arg.value));
 }
 
 ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_some(CallInfo& info) {
@@ -150,7 +150,7 @@ ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_some(CallInfo& inf
         return { };
     if (verify_matchable(info.arguments[0]).is_error())
         return { };
-    return std::shared_ptr<Value>(new SomeValue(*this, info.arguments[0].value));
+    return std::shared_ptr<Value>(new SomeValue(info.arguments[0].value));
 }
 
 ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_any(CallInfo& info) {
@@ -164,7 +164,7 @@ ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_any(CallInfo& info
     auto tuple = arg1.value->tuple();
     if (verify_matchable(tuple->values()).is_error())
         return { };
-    return std::shared_ptr<Value>(new OrValue(*this, tuple->values()));
+    return std::shared_ptr<Value>(new OrValue(tuple->values()));
 }
 
 ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_separated(CallInfo& info) {
@@ -181,7 +181,7 @@ ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_separated(CallInfo
     auto& arg2 = info.arguments[1];
     if (verify_matchable(arg2).is_error())
         return { };
-    return std::shared_ptr<Value>(new SeparatedValue(*this, tuple->values(), arg2.value));
+    return std::shared_ptr<Value>(new SeparatedValue(tuple->values(), arg2.value));
 }
 
 ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_map(CallInfo& info) {
@@ -202,14 +202,14 @@ ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_map(CallInfo& info
     auto tuple = arg2.value->tuple();
     std::vector<std::shared_ptr<Value>> mapped_values;
     for (auto value : tuple->values()) {
-        CallInfo call_info = { { { value, { } } }, { } };
+        CallInfo call_info = { { { value, { } } }, { }, *this };
         auto maybe_mapped = callable->call(call_info);
         if (maybe_mapped.is_error())
             return { };
         mapped_values.push_back(maybe_mapped.value());
     }
     // FIXME: Verify arguments are valid
-    return std::shared_ptr<Value>(new TupleValue(*this, mapped_values));
+    return std::shared_ptr<Value>(new TupleValue(mapped_values));
 }
 
 ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_nocase(CallInfo& info) {
@@ -229,7 +229,7 @@ ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_nocase(CallInfo& i
         std::shared_ptr<Value> value;
         auto c = string->string()[i];
         if (isalpha(c)) {
-            value = std::shared_ptr<Value>(new CharChoiceValue(*this, { tolower(c), toupper(c) }));
+            value = std::shared_ptr<Value>(new CharChoiceValue({ tolower(c), toupper(c) }));
         } else {
             // Create substring until next alpha character
             auto start_index = i;
@@ -237,13 +237,13 @@ ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_nocase(CallInfo& i
                 if (isalpha(string->string()[i]))
                     break;
             }
-            value = std::shared_ptr<Value>(new StringValue(*this, string->string().substr(start_index, i - start_index)));
+            value = std::shared_ptr<Value>(new StringValue(string->string().substr(start_index, i - start_index)));
         }
         summed_values.push_back(value);
     }
 
     // Return sum value
-    return std::shared_ptr<Value>(new SumValue(*this, summed_values));
+    return std::shared_ptr<Value>(new SumValue(summed_values));
 }
 
 ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_optional(CallInfo& info) {
@@ -256,7 +256,7 @@ ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_optional(CallInfo&
     auto matchable = arg1.value;
 
     // Return sum value
-    return std::shared_ptr<Value>(new OptionalValue(*this, matchable));
+    return std::shared_ptr<Value>(new OptionalValue(matchable));
 }
 
 ErrorOr<void> Interpreter::verify_matchable(ValueSnippetPair value) {

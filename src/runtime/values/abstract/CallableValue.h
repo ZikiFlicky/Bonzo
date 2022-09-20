@@ -15,12 +15,13 @@ struct ValueSnippetPair {
 struct CallInfo {
     std::vector<ValueSnippetPair> arguments;
     TextSnippet call_snippet;
+    Interpreter& interpreter;
 };
 
 class CallableValue : public Value {
 public:
-    CallableValue(Interpreter& interpreter, std::string name)
-        : Value(interpreter), m_name(name) { }
+    CallableValue(std::string name)
+        : Value(), m_name(name) { }
 
     std::string name() { return m_name.empty() ? "<unnamed>" : m_name; }
 

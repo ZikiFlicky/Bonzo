@@ -1,7 +1,7 @@
 #include "CollectionValue.h"
 
-CollectionValue::CollectionValue(Interpreter& interpreter, std::vector<std::shared_ptr<Value>> values)
-    : Value(interpreter), m_values(values) {
+CollectionValue::CollectionValue(std::vector<std::shared_ptr<Value>> values)
+    : Value(), m_values(values) {
 }
 
 CollectionValue::~CollectionValue() {

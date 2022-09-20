@@ -6,13 +6,14 @@
 
 class StringValue : public Value {
 public:
-    StringValue(Interpreter& interpreter, std::string string)
-        : Value(interpreter), m_string(string) { }
+    StringValue(std::string string)
+        : Value(), m_string(string) { }
     ~StringValue() override { }
 
     std::string string() { return m_string; }
 
-    ErrorOr<std::shared_ptr<Value>> add_with(std::shared_ptr<Value> shared_this, std::shared_ptr<Value> rhs, TextPosition operator_position) override;
+    ErrorOr<std::shared_ptr<Value>> add_with(std::shared_ptr<Value> shared_this, std::shared_ptr<Value> rhs,
+        TextPosition operator_position, Interpreter& interpreter) override;
 
     bool can_be_matched() override { return true; }
     std::string generate_regex() override;

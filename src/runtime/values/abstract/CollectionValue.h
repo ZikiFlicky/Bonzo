@@ -6,7 +6,7 @@
 
 class CollectionValue : public Value {
 public:
-    CollectionValue(Interpreter& interpreter, std::vector<std::shared_ptr<Value>> values);
+    CollectionValue(std::vector<std::shared_ptr<Value>> values);
     ~CollectionValue() override;
 
     std::vector<std::shared_ptr<Value>> values() { return m_values; }

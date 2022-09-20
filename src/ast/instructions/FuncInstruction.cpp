@@ -11,7 +11,7 @@ FuncInstruction::~FuncInstruction() {
 }
 
 ErrorOr<void> FuncInstruction::run(Interpreter& interpreter) {
-    auto value = std::make_shared<FuncValue>(interpreter, m_name, m_parameters, m_expr);
+    auto value = std::make_shared<FuncValue>(m_name, m_parameters, m_expr);
     interpreter.set_variable(m_name, value);
     return true; // Ran successfully
 }

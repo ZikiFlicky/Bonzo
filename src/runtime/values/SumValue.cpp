@@ -4,16 +4,17 @@
 
 #include <stack>
 
-ErrorOr<std::shared_ptr<Value>> SumValue::add_with(std::shared_ptr<Value> shared_this, std::shared_ptr<Value> rhs, TextPosition operator_position) {
+ErrorOr<std::shared_ptr<Value>> SumValue::add_with(std::shared_ptr<Value> shared_this, std::shared_ptr<Value> rhs,
+    TextPosition operator_position, Interpreter& interpreter) {
     (void)shared_this;
     if (!rhs->can_be_matched()) {
-        interpreter().set_error("values could not be added together", operator_position);
+        interpreter.set_error("values could not be added together", operator_position);
         return { };
     }
     // Copy with the new value
     std::vector<std::shared_ptr<Value>> new_values = values();
     new_values.push_back(rhs);
-    return std::shared_ptr<Value>(new SumValue(interpreter(), new_values));
+    return std::shared_ptr<Value>(new SumValue(new_values));
 }
 
 std::string SumValue::generate_regex() {

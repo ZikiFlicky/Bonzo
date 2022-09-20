@@ -5,8 +5,8 @@
 
 class OptionalValue : public Value {
 public:
-    OptionalValue(Interpreter &interpreter, std::shared_ptr<Value> optional)
-        : Value(interpreter), m_optional(optional) {}
+    OptionalValue(std::shared_ptr<Value> optional)
+        : Value(), m_optional(optional) {}
 
     bool can_be_matched() override { return true; }
     std::string generate_regex() override;

@@ -7,7 +7,7 @@
 
 class FuncValue : public CallableValue {
 public:
-    FuncValue(Interpreter& interpreter, std::string name, std::vector<std::string> parameter_names, std::shared_ptr<Expr> eval_expr);
+    FuncValue(std::string name, std::vector<std::string> parameter_names, std::shared_ptr<Expr> eval_expr);
     ~FuncValue() override;
 
     bool is_callable() override { return true; }

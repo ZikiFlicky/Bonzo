@@ -18,14 +18,13 @@ class CallableValue;
 
 class Value {
 public:
-    Value(Interpreter& interpreter)
-        : m_interpreter(interpreter) { }
+    Value() { }
     virtual ~Value() { }
 
-    Interpreter& interpreter() { return m_interpreter; }
-
-    virtual ErrorOr<std::shared_ptr<Value>> or_with(std::shared_ptr<Value> shared_this, std::shared_ptr<Value> rhs, TextPosition operator_position);
-    virtual ErrorOr<std::shared_ptr<Value>> add_with(std::shared_ptr<Value> shared_this, std::shared_ptr<Value> rhs, TextPosition operator_position);
+    virtual ErrorOr<std::shared_ptr<Value>> or_with(std::shared_ptr<Value> shared_this, std::shared_ptr<Value> rhs,
+        TextPosition operator_position, Interpreter& interpreter);
+    virtual ErrorOr<std::shared_ptr<Value>> add_with(std::shared_ptr<Value> shared_this, std::shared_ptr<Value> rhs,
+        TextPosition operator_position, Interpreter& interpreter);
     virtual bool can_be_matched() { return false; }
     virtual std::string generate_regex() { assert(0); }
     virtual bool needs_parens() { return true; }
@@ -51,7 +50,4 @@ public:
         assert(is_callable());
         return (CallableValue*)(this);
     }
-
-private:
-    Interpreter& m_interpreter;
 };

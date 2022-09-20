@@ -18,5 +18,5 @@ ErrorOr<std::shared_ptr<Value>> TupleExpr::eval(Interpreter& interpreter) {
             return { };
         values.push_back(maybe_evaluated.value());
     }
-    return std::shared_ptr<Value>(new TupleValue(interpreter, values));
+    return std::shared_ptr<Value>(new TupleValue(values));
 }

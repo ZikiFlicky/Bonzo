@@ -6,8 +6,8 @@
 
 class CharChoiceValue : public Value {
 public:
-    CharChoiceValue(Interpreter& interpreter, std::set<int> characters)
-        : Value(interpreter), m_characters(characters) { }
+    CharChoiceValue(std::set<int> characters)
+        : Value(), m_characters(characters) { }
     ~CharChoiceValue() { }
 
     bool can_be_matched() override { return true; }

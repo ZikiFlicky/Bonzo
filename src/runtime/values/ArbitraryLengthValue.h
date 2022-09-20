@@ -4,8 +4,8 @@
 
 class ArbitraryLengthValue : public Value {
 public:
-    ArbitraryLengthValue(Interpreter& interpreter, std::shared_ptr<Value> value)
-        : Value(interpreter), m_value(value) { };
+    ArbitraryLengthValue(std::shared_ptr<Value> value)
+        : Value(), m_value(value) { };
 
     bool can_be_matched() override { return m_value->can_be_matched(); }
 

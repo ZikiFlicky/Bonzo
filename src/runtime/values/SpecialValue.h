@@ -9,8 +9,8 @@ public:
         Newline
     };
 
-    SpecialValue(Interpreter& interpreter, Type type)
-        : Value(interpreter), m_type(type) { }
+    SpecialValue(Type type)
+        : Value(), m_type(type) { }
 
     bool can_be_matched() override { return true; }
 

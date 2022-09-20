@@ -5,8 +5,8 @@
 
 class SomeValue : public Value {
 public:
-    SomeValue(Interpreter& interpreter, std::shared_ptr<Value> value)
-        : Value(interpreter), m_value(value) { }
+    SomeValue(std::shared_ptr<Value> value)
+        : Value(), m_value(value) { }
 
     bool can_be_matched() override { return true; }
     std::string generate_regex() override;

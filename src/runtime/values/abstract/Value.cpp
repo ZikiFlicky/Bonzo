@@ -4,21 +4,21 @@
 #include <runtime/Interpreter.h>
 
 ErrorOr<std::shared_ptr<Value>> Value::or_with(std::shared_ptr<Value> shared_this, std::shared_ptr<Value> rhs,
-        TextPosition operator_position) {
+        TextPosition operator_position, Interpreter& interpreter) {
     if (!can_be_matched() || !rhs->can_be_matched()) {
-        interpreter().set_error("values could not be or'ed together", operator_position);
+        interpreter.set_error("values could not be or'ed together", operator_position);
         return { };
     }
-    return std::shared_ptr<Value>(new OrValue(interpreter(), { shared_this, rhs }));
+    return std::shared_ptr<Value>(new OrValue({ shared_this, rhs }));
 }
 
 ErrorOr<std::shared_ptr<Value>> Value::add_with(std::shared_ptr<Value> shared_this, std::shared_ptr<Value> rhs,
-        TextPosition operator_position) {
+        TextPosition operator_position, Interpreter& interpreter) {
     if (!can_be_matched() || !rhs->can_be_matched()) {
-        interpreter().set_error("values could not be added together", operator_position);
+        interpreter.set_error("values could not be added together", operator_position);
         return { };
     }
-    return std::shared_ptr<Value>(new SumValue(interpreter(), { shared_this, rhs }));
+    return std::shared_ptr<Value>(new SumValue({ shared_this, rhs }));
 }
 
 std::string Value::generate_regex_as_child() {
