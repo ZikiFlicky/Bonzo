@@ -10,7 +10,9 @@
 
 class MatchHandler {
 public:
-    explicit MatchHandler(std::string string) : m_string(string) { }
+    explicit MatchHandler(std::string string) : m_string(string) {
+        std::cout << m_position.stream() << std::endl;
+    }
     ~MatchHandler() { }
 
     TextPosition& position() { return m_position; }
@@ -33,8 +35,6 @@ public:
     TextPosition position() { return m_position; }
     size_t index() { return m_index; }
 
-    void set_position(TextPosition state) { m_position = state; }
-
     void inc_index() { ++m_index; }
     void dec_index() { assert(m_index > 0); --m_index; }
     void reset_index() { m_index = 0; }
@@ -55,11 +55,11 @@ private:
 
 class SearchProvider {
 public:
-    explicit SearchProvider(std::string string) : m_match_against_string(string) { }
+    explicit SearchProvider(std::string& string) : m_match_against_string(string) { }
     ~SearchProvider() { }
 
     std::vector<TextSnippet> find_from_value(std::shared_ptr<Value> value);
 
 private:
-    std::string m_match_against_string;
+    std::string& m_match_against_string;
 };

@@ -28,9 +28,9 @@ ErrorOr<void> MatchInstruction::run(RuntimeManager& rtm) {
     case OperationType::MatchAgainst: {
         SearchProvider handler(rtm.compare_text());
         auto snippets = handler.find_from_value(value);
-        std::cout << "Found " << snippets.size() << " matches" << (snippets.size() > 0 ? " (not including the last position):" : "") << std::endl;
+        std::cout << "Found " << snippets.size() << " matches" << (snippets.size() > 0 ? ":" : "") << std::endl;
         for (auto& s : snippets)
-            std::cout << s.start().to_string() << " -> " << s.end().to_string() << " (length " << s.length() << ")" << std::endl;
+            std::cout << s.start().to_string() << " -> " << s.end().previous_position().to_string() << " (length " << s.length() << ")" << std::endl;
         break;
     }
     default:

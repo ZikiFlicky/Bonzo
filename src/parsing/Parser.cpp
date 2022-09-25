@@ -127,11 +127,11 @@ ErrorOr<std::shared_ptr<Expr>> Parser::parse_string() {
     size_t index = 0;
     std::string string = "";
     while (index < string_length) {
-        if (stream->at(start_offset + index) == '\\') {
-            string += stream->at(start_offset + index + 1);
+        if (stream[start_offset + index] == '\\') {
+            string += stream[start_offset + index + 1];
             index += 2;
         } else {
-            string += stream->at(start_offset + index);
+            string += stream[start_offset + index];
             ++index;
         }
     }

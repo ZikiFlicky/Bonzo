@@ -24,5 +24,5 @@ std::string Token::type_to_string(Type type) {
 }
 
 std::string Token::to_string() {
-    return m_start_state.stream()->substr(start_state().index(), length());
+    return m_start_state.stream().substr(start_state().index(), length());
 }

@@ -11,13 +11,13 @@
 class Lexer final {
 public:
     Lexer(std::string& stream)
-        : m_error_state({ &stream, 0, 1, 1 }), m_stream(stream) { }
+        : m_error_state({ stream, 0, 1, 1 }), m_stream(stream) { }
     ~Lexer() { }
 
     inline bool is_eof() { return remaining() == 0; }
     bool has_errored() { return m_has_errored; }
     Token& token() { return m_token; }
-    std::string* stream() { return &m_stream; }
+    std::string& stream() { return m_stream; }
     std::string error_message() { return m_error_message; }
     TextPosition error_state() { return m_error_state; }
 

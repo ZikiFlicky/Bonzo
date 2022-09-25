@@ -9,7 +9,7 @@
 class Parser final {
 public:
     Parser(Lexer& lexer)
-    : m_error_state({ lexer.stream(), 0, 1, 1 }), m_lexer(lexer) { }
+        : m_error_state(lexer.stream(), 0, 1, 1), m_lexer(lexer) { }
     ~Parser() {}
 
     bool has_errored() { return m_has_errored; }

@@ -239,11 +239,11 @@ ErrorOr<bool> Lexer::lex_identifier() {
 }
 
 TextPosition Lexer::position() {
-    return TextPosition(&m_stream, m_index, m_line, m_column);
+    return { m_stream, m_index, m_line, m_column };
 }
 
 void Lexer::load_state(const TextPosition& state) {
-    m_stream = *state.stream();
+    m_stream = state.stream();
     m_index = state.index();
     m_line = state.line();
     m_column = state.column();

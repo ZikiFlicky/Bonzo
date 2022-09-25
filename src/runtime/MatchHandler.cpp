@@ -19,13 +19,14 @@ char MatchHandler::get() {
         ++column;
     }
     // Set new position
-    m_position = { &m_string, index, line, column };
+    m_position = { m_string, index, line, column };
     return c;
 }
 
 TextSnippet MatchState::try_match_largest_snippet() {
     if (try_match()) {
         auto max_position = matcher().position();
+        std::cout << max_position.to_string() << std::endl;
         while (try_match()) {
             auto new_position = matcher().position();
             if (new_position.index() > max_position.index())
