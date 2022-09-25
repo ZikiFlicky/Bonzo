@@ -15,7 +15,7 @@ struct ValueSnippetPair {
 struct CallInfo {
     std::vector<ValueSnippetPair> arguments;
     TextSnippet call_snippet;
-    Interpreter& interpreter;
+    RuntimeManager& rtm;
 };
 
 class CallableValue : public Value {

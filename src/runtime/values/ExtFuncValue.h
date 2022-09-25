@@ -1,7 +1,9 @@
 #pragma once
 
 #include "abstract/CallableValue.h"
-#include "utils/ErrorOr.h"
+#include <utils/ErrorOr.h>
+
+class Interpreter;
 
 class ExtFuncValue : public CallableValue {
 public:

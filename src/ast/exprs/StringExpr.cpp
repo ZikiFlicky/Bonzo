@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-ErrorOr<std::shared_ptr<Value>> StringExpr::eval(Interpreter& interpreter) {
-    (void)interpreter;
+ErrorOr<std::shared_ptr<Value>> StringExpr::eval(RuntimeManager& rtm) {
+    (void)rtm;
     return std::shared_ptr<Value>(new StringValue(m_value));
 }

@@ -10,7 +10,7 @@ public:
     FuncInstruction(std::string name, std::vector<std::string> parameters, std::shared_ptr<Expr> expr, TextSnippet snippet);
     ~FuncInstruction() override;
 
-    ErrorOr<void> run(Interpreter& interpreter) override;
+    ErrorOr<void> run(RuntimeManager& rtm) override;
 
 private:
     std::string m_name;

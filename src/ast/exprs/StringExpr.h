@@ -8,7 +8,7 @@ public:
         : Expr(snippet), m_value(value) { }
     ~StringExpr() { }
 
-    ErrorOr<std::shared_ptr<Value>> eval(Interpreter& interpreter);
+    ErrorOr<std::shared_ptr<Value>> eval(RuntimeManager& rtm);
 
 private:
     std::string m_value;

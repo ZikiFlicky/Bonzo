@@ -8,7 +8,7 @@ public:
     RuleInstruction(std::string name, std::shared_ptr<Expr> expr, TextSnippet snippet);
     ~RuleInstruction();
 
-    ErrorOr<void> run(Interpreter& interpreter);
+    ErrorOr<void> run(RuntimeManager& rtm);
 
 private:
     std::string m_name;

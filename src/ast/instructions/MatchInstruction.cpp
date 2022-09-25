@@ -12,21 +12,21 @@ MatchInstruction::MatchInstruction(std::shared_ptr<Expr> expr, TextSnippet snipp
 MatchInstruction::~MatchInstruction() {
 }
 
-ErrorOr<void> MatchInstruction::run(Interpreter& interpreter) {
-    auto maybe_value = m_expr->eval(interpreter);
+ErrorOr<void> MatchInstruction::run(RuntimeManager& rtm) {
+    auto maybe_value = m_expr->eval(rtm);
     if (maybe_value.is_error())
         return false;
     auto value = maybe_value.value();
     if (!value->can_be_matched()) {
-        interpreter.set_error("input not generable/matchable", snippet().start());
+        rtm.set_error("input not generable/matchable", snippet().start());
         return false;
     }
-    switch (interpreter.operation_type()) {
-    case Interpreter::OperationType::GenerateRegex:
+    switch (rtm.operation_type()) {
+    case OperationType::GenerateRegex:
         std::cout << "Generated: " << value->generate_regex() << std::endl;
         break;
-    case Interpreter::OperationType::MatchAgainst: {
-        SearchProvider handler(interpreter.compare_text());
+    case OperationType::MatchAgainst: {
+        SearchProvider handler(rtm.compare_text());
         auto snippets = handler.find_from_value(value);
         std::cout << "Found " << snippets.size() << " matches" << (snippets.size() > 0 ? " (not including the last position):" : "") << std::endl;
         for (auto& s : snippets)

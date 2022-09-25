@@ -5,10 +5,10 @@
 #include <stack>
 
 ErrorOr<std::shared_ptr<Value>> SumValue::add_with(std::shared_ptr<Value> shared_this, std::shared_ptr<Value> rhs,
-    TextPosition operator_position, Interpreter& interpreter) {
+    TextPosition operator_position, RuntimeManager& rtm) {
     (void)shared_this;
     if (!rhs->can_be_matched()) {
-        interpreter.set_error("values could not be added together", operator_position);
+        rtm.set_error("values could not be added together", operator_position);
         return { };
     }
     // Copy with the new value

@@ -13,7 +13,7 @@ public:
     virtual ~Expr() { }
 
     TextSnippet snippet() { return m_snippet; }
-    virtual ErrorOr<std::shared_ptr<Value>> eval(Interpreter& interpreter) = 0;
+    virtual ErrorOr<std::shared_ptr<Value>> eval(RuntimeManager& rtm) = 0;
 
 private:
     TextSnippet m_snippet;

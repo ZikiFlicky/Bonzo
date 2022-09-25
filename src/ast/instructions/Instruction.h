@@ -5,7 +5,7 @@
 
 #include <memory>
 
-class Interpreter;
+class RuntimeManager;
 
 class Instruction {
 public:
@@ -13,7 +13,7 @@ public:
         : m_snippet(snippet) { }
     virtual ~Instruction() { }
 
-    virtual ErrorOr<void> run(Interpreter& interpreter) = 0;
+    virtual ErrorOr<void> run(RuntimeManager& rtm) = 0;
 
 protected:
     TextSnippet snippet() { return m_snippet; }

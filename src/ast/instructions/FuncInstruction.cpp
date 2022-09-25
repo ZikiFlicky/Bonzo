@@ -10,8 +10,8 @@ FuncInstruction::FuncInstruction(std::string name, std::vector<std::string> para
 FuncInstruction::~FuncInstruction() {
 }
 
-ErrorOr<void> FuncInstruction::run(Interpreter& interpreter) {
+ErrorOr<void> FuncInstruction::run(RuntimeManager& rtm) {
     auto value = std::make_shared<FuncValue>(m_name, m_parameters, m_expr);
-    interpreter.set_variable(m_name, value);
+    rtm.set_variable(m_name, value);
     return true; // Ran successfully
 }

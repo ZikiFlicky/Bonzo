@@ -10,7 +10,7 @@ public:
     InvocationExpr(TextSnippet snippet, std::shared_ptr<Expr> invoked, std::vector<std::shared_ptr<Expr>> arguments);
     ~InvocationExpr() override;
 
-    ErrorOr<std::shared_ptr<Value>> eval(Interpreter& interpreter) override;
+    ErrorOr<std::shared_ptr<Value>> eval(RuntimeManager& rtm) override;
 
 private:
     std::shared_ptr<Expr> m_invoked;

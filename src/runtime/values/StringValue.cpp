@@ -4,12 +4,12 @@
 #include <iostream>
 
 ErrorOr<std::shared_ptr<Value>> StringValue::add_with(std::shared_ptr<Value> shared_this, std::shared_ptr<Value> rhs,
-    TextPosition operator_position, Interpreter& interpreter) {
+    TextPosition operator_position, RuntimeManager& rtm) {
     if (rhs->is_string()) {
         auto rhs_string = rhs->string();
         return std::shared_ptr<Value>(new StringValue(string() + rhs_string->string()));
     }
-    return Value::add_with(shared_this, rhs, operator_position, interpreter);
+    return Value::add_with(shared_this, rhs, operator_position, rtm);
 }
 
 std::string StringValue::generate_regex() {

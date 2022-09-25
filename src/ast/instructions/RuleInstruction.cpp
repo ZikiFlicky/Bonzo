@@ -9,10 +9,10 @@ RuleInstruction::RuleInstruction(std::string name, std::shared_ptr<Expr> expr, T
 RuleInstruction::~RuleInstruction() {
 }
 
-ErrorOr<void> RuleInstruction::run(Interpreter& interpreter) {
-    auto maybe_value = m_expr->eval(interpreter);
+ErrorOr<void> RuleInstruction::run(RuntimeManager& rtm) {
+    auto maybe_value = m_expr->eval(rtm);
     if (maybe_value.is_error())
         return false;
-    interpreter.set_variable(m_name, maybe_value.value());
+    rtm.set_variable(m_name, maybe_value.value());
     return true; // Ran successfully
 }
