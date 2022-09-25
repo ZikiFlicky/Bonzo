@@ -49,7 +49,7 @@ void Interpreter::set_base_variables() {
     };
     // Set base functions
     for (auto def : func_defs) {
-        auto func = std::make_shared<ExtFuncValue>(def.name, &Interpreter::builtin_function_arbitrary_length);
+        auto func = std::make_shared<ExtFuncValue>(def.name, def.def);
         m_rtm.set_variable(def.name, func);
     }
     // Set base variables
