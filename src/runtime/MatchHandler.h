@@ -10,9 +10,7 @@
 
 class MatchHandler {
 public:
-    explicit MatchHandler(std::string string) : m_string(string) {
-        std::cout << m_position.stream() << std::endl;
-    }
+    explicit MatchHandler(std::string string) : m_string(string) { }
     ~MatchHandler() { }
 
     TextPosition& position() { return m_position; }
