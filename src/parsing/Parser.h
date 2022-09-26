@@ -15,7 +15,7 @@ public:
     bool has_errored() { return m_has_errored; }
     std::vector<std::shared_ptr<Instruction>>& instructions() { return m_instructions; }
 
-    ErrorOr<bool> parse_all();
+    ErrorOr<void> parse_all();
     void show_error();
 
 private:

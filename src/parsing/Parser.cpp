@@ -503,17 +503,16 @@ ErrorOr<std::shared_ptr<Instruction>> Parser::parse_instruction() {
     return std::shared_ptr<Instruction>(nullptr);
 }
 
-// FIXME: Should be ErrorOr<void>
-ErrorOr<bool> Parser::parse_all() {
+ErrorOr<void> Parser::parse_all() {
     // We don't care whether there actually was a newline
     if (match_newline(false).is_error())
-        return { };
+        return false;
 
     std::shared_ptr<Instruction> instruction;
     for (;;) {
         auto maybe_instruction = parse_instruction();
         if (maybe_instruction.is_error())
-            return { };
+            return false;
         if (!(instruction = maybe_instruction.value()))
             break;
         m_instructions.push_back(instruction);
@@ -522,7 +521,7 @@ ErrorOr<bool> Parser::parse_all() {
     // If not reached eof but finished parsing, we have some trailing nonsense
     if (!is_eof()) {
         set_error("unexpected token");
-        return { };
+        return false;
     }
 
     return true;
