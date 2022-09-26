@@ -69,8 +69,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    Lexer lexer(stream);
-    Parser parser(lexer);
+    Parser parser(stream);
     // If an error was returned
     if (parser.parse_all().is_error()) {
         parser.show_error();

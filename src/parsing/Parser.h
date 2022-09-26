@@ -8,8 +8,8 @@
 
 class Parser final {
 public:
-    Parser(Lexer& lexer)
-        : m_error_state(lexer.stream(), 0, 1, 1), m_lexer(lexer) { }
+    Parser(std::string& stream)
+        : m_lexer(stream), m_error_state(stream, 0, 1, 1) { }
     ~Parser() {}
 
     bool has_errored() { return m_has_errored; }
@@ -19,12 +19,12 @@ public:
     void show_error();
 
 private:
+    Lexer m_lexer;
+    std::vector<std::shared_ptr<Instruction>> m_instructions { };
+
     std::string m_error_message { };
     TextPosition m_error_state;
     bool m_has_errored { false };
-
-    Lexer& m_lexer;
-    std::vector<std::shared_ptr<Instruction>> m_instructions { };
 
     TextPosition position() { return m_lexer.position(); }
     Token& token() { return m_lexer.token(); }
