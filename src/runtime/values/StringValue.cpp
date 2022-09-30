@@ -32,6 +32,7 @@ std::string StringValue::generate_regex() {
         case '!':
         case '=':
         case ',':
+        case '/':
             generated += "\\";
             break;
         }
