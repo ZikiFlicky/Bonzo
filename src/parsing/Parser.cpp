@@ -296,7 +296,7 @@ ErrorOr<std::shared_ptr<Expr>> Parser::parse_binary_expr() {
         std::shared_ptr<Expr> rhs;
         if (!(rhs = maybe_parse_result.value())) {
             set_error("expected expression after '" + Token::type_to_string(token_type) + "'");
-            return std::shared_ptr<Expr>(nullptr);
+            return { };
         }
         switch (token_type) {
         case Token::Type::Pipe:
@@ -376,7 +376,7 @@ ErrorOr<std::shared_ptr<Instruction>> Parser::parse_rule_instruction() {
     // If not found rule expression
     if (!(rule_expr = maybe_parsed.value())) {
         set_error("expected expression");
-        return std::shared_ptr<Instruction>(nullptr);
+        return { };
     }
 
     maybe_matched = match_token(Token::Type::RightBrace);
@@ -460,7 +460,7 @@ ErrorOr<std::shared_ptr<Instruction>> Parser::parse_func_instruction() {
     // If not found func expression
     if (!(func_expr = maybe_parsed.value())) {
         set_error("expected expression");
-        return std::shared_ptr<Instruction>(nullptr);
+        return { };
     }
 
     maybe_matched = match_token(Token::Type::RightBrace);
