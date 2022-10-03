@@ -334,8 +334,10 @@ ErrorOr<std::shared_ptr<Instruction>> Parser::parse_match_instruction() {
         return { };
 
     std::shared_ptr<Expr> expr;
-    if (!(expr = maybe_expr_result.value()))
-        return std::shared_ptr<Instruction>(nullptr);
+    if (!(expr = maybe_expr_result.value())) {
+        set_error("expected expression");
+        return { };
+    }
 
     return std::shared_ptr<Instruction>(new MatchInstruction(expr, { start_position, position() }));
 }
