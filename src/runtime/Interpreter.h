@@ -16,11 +16,38 @@ class Interpreter;
 struct CallTraceItem {
     TextPosition position;
     std::string func_name;
+
+    // Are the two traces equal, depending on only the attributes that can be user-defined
+    bool similar_to(const CallTraceItem& trace) {
+        return func_name == trace.func_name && position.similar_to(trace.position);
+    }
 };
 
 enum OperationType {
     GenerateRegex = 1,
     MatchAgainst
+};
+
+struct RuntimeError {
+    std::string error_message { };
+    TextPosition error_position { };
+    std::vector<CallTraceItem> call_trace { };
+
+    std::string to_string();
+    bool similar_to(const RuntimeError& error) {
+        if (error_message != error.error_message)
+            return false;
+        if (!error_position.similar_to(error.error_position))
+            return false;
+        if (call_trace.size() != error.call_trace.size())
+            return false;
+        size_t trace_size = call_trace.size();
+        for (size_t i = 0; i < trace_size; ++i) {
+            if (!call_trace[i].similar_to(error.call_trace[i]))
+                return false;
+        }
+        return true;
+    }
 };
 
 class RuntimeManager final {
@@ -43,6 +70,11 @@ public:
     void set_local_variable(std::string name, std::shared_ptr<Value> value);
     std::shared_ptr<Value> get_variable(std::string name);
     ErrorOr<std::shared_ptr<Value>> call_builtin(ExtFuncValue::FuncDef func, CallInfo& info);
+    RuntimeError error() {
+        assert(has_errored());
+        return m_error;
+    }
+    void print(std::string string);
 
     ErrorOr<void> expect_arguments_size(CallInfo& info, size_t size);
     ErrorOr<void> verify_matchable(ValueSnippetPair value);
@@ -50,30 +82,40 @@ public:
 
 private:
     Interpreter& m_interpreter;
+    bool m_is_output_buffered { false };
+    std::string m_output_buffer;
     OperationType m_operation_type;
+
     std::stack<CallTraceItem> m_call_trace;
+    RuntimeError m_error;
     bool m_has_error { false };
-    std::string m_error_message { };
-    TextPosition m_error_position;
 
     Scope* m_top_scope { new Scope };
     std::string m_compare_text;
+
+    std::string output_buffer() { return m_output_buffer; }
+    void set_buffered() { m_is_output_buffered = true; }
 };
 
 class Interpreter final {
 public:
-    Interpreter(std::vector<std::shared_ptr<Instruction>>& instructions);
-    Interpreter(std::vector<std::shared_ptr<Instruction>>& instructions, std::string compare_text);
+    Interpreter();
+    Interpreter(std::string compare_text);
     ~Interpreter();
 
+    void set_instructions(std::vector<std::shared_ptr<Instruction>> instructions) { m_instructions = instructions; }
+
     bool has_errored() { return m_rtm.has_errored(); }
+    RuntimeError error() { return m_rtm.error(); }
     void show_error();
+    std::string output_buffer() { return m_rtm.output_buffer(); }
+    void set_buffered() { m_rtm.set_buffered(); }
 
     ErrorOr<void> run();
 
 private:
     RuntimeManager m_rtm;
-    std::vector<std::shared_ptr<Instruction>>& m_instructions;
+    std::vector<std::shared_ptr<Instruction>> m_instructions;
 
     void set_base_variables();
 

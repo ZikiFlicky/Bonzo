@@ -9,21 +9,21 @@
 class Parser final {
 public:
     Parser(std::string& stream)
-        : m_lexer(stream), m_error_state(stream, 0, 1, 1) { }
+        : m_lexer(stream) { }
     ~Parser() {}
 
     bool has_errored() { return m_has_errored; }
     std::vector<std::shared_ptr<Instruction>>& instructions() { return m_instructions; }
 
     ErrorOr<void> parse_all();
+    ParsingError error();
     void show_error();
 
 private:
     Lexer m_lexer;
     std::vector<std::shared_ptr<Instruction>> m_instructions { };
 
-    std::string m_error_message { };
-    TextPosition m_error_state;
+    ParsingError m_error;
     bool m_has_errored { false };
 
     TextPosition position() { return m_lexer.position(); }

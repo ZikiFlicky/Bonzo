@@ -19,7 +19,7 @@ char MatchHandler::get() {
         ++column;
     }
     // Set new position
-    m_position = { m_string, index, line, column };
+    m_position = { &m_string, index, line, column };
     return c;
 }
 

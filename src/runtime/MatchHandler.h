@@ -10,7 +10,7 @@
 
 class MatchHandler {
 public:
-    explicit MatchHandler(std::string string) : m_string(string) { }
+    explicit MatchHandler(std::string& string) : m_string(string) { }
     ~MatchHandler() { }
 
     TextPosition& position() { return m_position; }
@@ -20,7 +20,7 @@ public:
 
 private:
     TextPosition m_position;
-    std::string m_string;
+    std::string& m_string;
 };
 
 class MatchState {

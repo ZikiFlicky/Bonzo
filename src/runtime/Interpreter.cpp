@@ -13,20 +13,13 @@
 
 #include <iostream>
 
-void RuntimeManager::set_error(std::string error_message, TextPosition position) {
-    assert(!has_errored());
-    m_has_error = true;
-    m_error_message = error_message;
-    m_error_position = position;
-}
-
-Interpreter::Interpreter(std::vector<std::shared_ptr<Instruction>>& instructions)
-    : m_rtm(*this), m_instructions(instructions) {
+Interpreter::Interpreter()
+    : m_rtm(*this) {
     set_base_variables();
 }
 
-Interpreter::Interpreter(std::vector<std::shared_ptr<Instruction>>& instructions, std::string compare_text)
-    : m_rtm(*this, compare_text), m_instructions(instructions) {
+Interpreter::Interpreter(std::string compare_text)
+    : m_rtm(*this, compare_text) {
     set_base_variables();
 }
 
@@ -66,22 +59,7 @@ void Interpreter::set_base_variables() {
 
 void Interpreter::show_error() {
     assert(has_errored());
-    std::cerr << "RuntimeError at " << m_rtm.m_error_position.to_string() << ": " << m_rtm.m_error_message << std::endl;
-    TextPosition position;
-    while (!m_rtm.m_call_trace.empty()) {
-        auto trace = m_rtm.m_call_trace.top();
-        // If this is the first one, call it a "trigger"
-        if (position.valid()) {
-            std::cout << "  Called from `" << trace.func_name << "` at " << position.to_string();
-        } else {
-            std::cout << "  Triggered in `" << trace.func_name << "`";
-        }
-        std::cout << std::endl;
-        position = trace.position;
-        m_rtm.m_call_trace.pop();
-    }
-    if (position.valid())
-        std::cout << "  Called from " << position.to_string() << std::endl;
+    m_rtm.print(error().to_string());
 }
 
 ErrorOr<void> Interpreter::run() {
@@ -216,6 +194,19 @@ ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_optional(CallInfo&
     return std::shared_ptr<Value>(new OptionalValue(matchable));
 }
 
+void RuntimeManager::set_error(std::string error_message, TextPosition position) {
+    assert(!has_errored());
+    m_has_error = true;
+    // Create vector call trace
+    auto call_trace_stack_copy = m_call_trace;
+    std::vector<CallTraceItem> call_trace;
+    while (!call_trace_stack_copy.empty()) {
+        call_trace.push_back(call_trace_stack_copy.top());
+        call_trace_stack_copy.pop();
+    }
+    m_error = { error_message, position, call_trace };
+}
+
 void RuntimeManager::add_call_trace(CallTraceItem call_trace) {
     m_call_trace.push(call_trace);
 }
@@ -288,4 +279,30 @@ ErrorOr<void> RuntimeManager::verify_matchable(std::vector<std::shared_ptr<Value
             return false;
     }
     return true;
+}
+
+void RuntimeManager::print(std::string string) {
+    if (m_is_output_buffered)
+        m_output_buffer += string;
+    else
+        std::cout << string;
+}
+
+std::string RuntimeError::to_string() {
+    std::string error_string = "RuntimeError at " + error_position.to_string() + ": " + error_message + "\n";
+    TextPosition position;
+    for (size_t i = 0; i < call_trace.size(); ++i) {
+        auto trace = call_trace[call_trace.size() - i - 1];
+        // If this is the first one, call it a "trigger"
+        if (position.valid()) {
+            error_string += "  Called from `" + trace.func_name + "` at " + position.to_string();
+        } else {
+            error_string += "  Triggered in `" + trace.func_name + "`";
+        }
+        error_string += "\n";
+        position = trace.position;
+    }
+    if (position.valid())
+        error_string += "  Called from " + position.to_string() + "\n";
+    return error_string;
 }

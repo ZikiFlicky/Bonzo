@@ -23,8 +23,7 @@ ErrorOr<bool> Parser::lex() {
 }
 
 void Parser::set_error(std::string error_message) {
-    m_error_message = error_message;
-    m_error_state = position();
+    m_error = { error_message, position() };
     m_has_errored = true;
 }
 
@@ -85,7 +84,6 @@ ErrorOr<bool> Parser::parse_enclosed_arguments(Token::Type start_token, Token::T
     std::vector<std::shared_ptr<Expr>> arguments;
     bool read_arguments = true;
     do {
-        auto backtrack = position();
         // Try to match end token
         auto maybe_matched = match_token(end_token);
         if (maybe_matched.is_error())
@@ -121,11 +119,12 @@ ErrorOr<std::shared_ptr<Expr>> Parser::parse_string() {
         return std::shared_ptr<Expr>(nullptr);
 
     auto start_state = token().start_state();
-    auto stream = start_state.stream();
+    assert(start_state.stream());
+    auto& stream = *start_state.stream();
     auto start_offset = token().index();
     auto string_length = token().length();
     size_t index = 0;
-    std::string string = "";
+    std::string string { };
     while (index < string_length) {
         if (stream[start_offset + index] == '\\') {
             string += stream[start_offset + index + 1];
@@ -529,19 +528,13 @@ ErrorOr<void> Parser::parse_all() {
     return true;
 }
 
+ParsingError Parser::error() {
+    if (m_lexer.has_errored())
+        return m_lexer.error();
+    assert(has_errored());
+    return m_error;
+}
+
 void Parser::show_error() {
-    // Decide if to take the error from the lexer or from the parser
-    TextPosition state;
-    std::string message;
-    if (m_lexer.has_errored()) {
-        state = m_lexer.error_state();
-        message = m_lexer.error_message();
-    } else if (m_has_errored) {
-        state = m_error_state;
-        message = m_error_message;
-    } else {
-        // FIXME:
-        assert(0);
-    }
-    std::cerr << "ParsingError (" << state.line() << ":" << state.column() << "): " << message << std::endl;
+    std::cout << error().to_string() << std::endl;
 }

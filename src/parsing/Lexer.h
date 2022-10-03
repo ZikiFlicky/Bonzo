@@ -8,18 +8,35 @@
 #include <string>
 #include <functional>
 
+// TODO: Find better place for this
+struct ParsingError {
+    std::string message { };
+    TextPosition position { };
+
+    bool operator==(const ParsingError& error) const {
+        return error.message == message && error.position == position;
+    }
+
+    bool similar_to(const ParsingError& error) {
+        return message == error.message && position.similar_to(error.position);
+    }
+
+    std::string to_string() {
+        return "ParsingError " + position.to_string() + ": " + message + '\n';
+    }
+};
+
 class Lexer final {
 public:
     Lexer(std::string& stream)
-        : m_error_state({ stream, 0, 1, 1 }), m_stream(stream) { }
+        : m_stream(stream) { }
     ~Lexer() { }
 
     inline bool is_eof() { return remaining() == 0; }
     bool has_errored() { return m_has_errored; }
     Token& token() { return m_token; }
     std::string& stream() { return m_stream; }
-    std::string error_message() { return m_error_message; }
-    TextPosition error_state() { return m_error_state; }
+    ParsingError error() { return m_error; }
 
     void set_token(Token the) { m_token = the; }
 
@@ -34,8 +51,7 @@ public:
 
 private:
     bool m_has_errored { false };
-    std::string m_error_message { };
-    TextPosition m_error_state;
+    ParsingError m_error;
 
     std::string& m_stream;
     size_t m_index { 0 };

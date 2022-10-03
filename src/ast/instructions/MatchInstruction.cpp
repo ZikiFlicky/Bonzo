@@ -23,14 +23,14 @@ ErrorOr<void> MatchInstruction::run(RuntimeManager& rtm) {
     }
     switch (rtm.operation_type()) {
     case OperationType::GenerateRegex:
-        std::cout << "Generated: " << value->generate_regex() << std::endl;
+        rtm.print("Generated: " + value->generate_regex() + "\n");
         break;
     case OperationType::MatchAgainst: {
         SearchProvider handler(rtm.compare_text());
         auto snippets = handler.find_from_value(value);
-        std::cout << "Found " << snippets.size() << " matches" << (snippets.size() > 0 ? ":" : "") << std::endl;
+        rtm.print("Found " + std::to_string(snippets.size()) + " matches" + (snippets.size() > 0 ? ":" : std::string()) + "\n");
         for (auto& s : snippets)
-            std::cout << s.start().to_string() << " -> " << s.end().previous_position().to_string() << " (length " << s.length() << ")" << std::endl;
+            rtm.print(s.start().to_string() + " -> " + s.end().previous_position().to_string() + " (length " + std::to_string(s.length()) + ")" + "\n");
         break;
     }
     default:

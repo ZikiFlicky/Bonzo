@@ -11,8 +11,7 @@ static const struct {
 };
 
 void Lexer::set_error(std::string error_message) {
-    m_error_message = error_message;
-    m_error_state = position();
+    m_error = { error_message, position() };
     m_has_errored = true;
 }
 
@@ -239,11 +238,11 @@ ErrorOr<bool> Lexer::lex_identifier() {
 }
 
 TextPosition Lexer::position() {
-    return { m_stream, m_index, m_line, m_column };
+    return { &m_stream, m_index, m_line, m_column };
 }
 
 void Lexer::load_state(const TextPosition& state) {
-    m_stream = state.stream();
+    assert(state.stream() == &m_stream);
     m_index = state.index();
     m_line = state.line();
     m_column = state.column();

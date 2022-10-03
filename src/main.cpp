@@ -75,20 +75,16 @@ int main(int argc, char* argv[]) {
         parser.show_error();
         return 1;
     }
-    if (has_match_against_filename) {
-        // Match against a filename
-        Interpreter interpreter(parser.instructions(), std::string(match_against_stream));
-        if (interpreter.run().is_error()) {
-            interpreter.show_error();
-            return 1;
-        }
-    } else {
-        // Generate regex
-        Interpreter interpreter(parser.instructions());
-        if (interpreter.run().is_error()) {
-            interpreter.show_error();
-            return 1;
-        }
+    // Decide interpreter mode and run its instructions
+    Interpreter* interpreter;
+    if (has_match_against_filename)
+        interpreter = new Interpreter(match_against_stream);
+    else
+        interpreter = new Interpreter;
+    interpreter->set_instructions(parser.instructions());
+    if (interpreter->run().is_error()) {
+        interpreter->show_error();
+        return 1;
     }
     return 0;
 }

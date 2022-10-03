@@ -4,7 +4,7 @@
 #include <stack>
 
 std::string SeparatedValue::generate_regex() {
-    std::string generated = "";
+    std::string generated { };
     std::string stringed_separator = seperator()->generate_regex();
     for (size_t i = 0; i < values().size(); ++i) {
         if (i != 0)
