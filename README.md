@@ -43,7 +43,11 @@ To run the hello-world example file:
 - [x] Generate regex
 - [X] Our own matching engine
 - [X] Better argument handling
+- [X] Tests
+- [~] Better errors (show position in runtime errors)
+- [ ] More tests
+- [ ] Fix some UB
+- [ ] Refactor
+- [ ] Different make rule to build the `runtests` executable
 - [ ] Show matches in an interactive way (like `less`)
 - [ ] More regex syntaxes
-- [ ] Better errors (show position in runtime errors)
-- [ ] Tests
