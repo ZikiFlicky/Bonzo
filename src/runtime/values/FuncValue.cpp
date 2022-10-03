@@ -8,10 +8,8 @@ FuncValue::~FuncValue() {
 }
 
 ErrorOr<std::shared_ptr<Value>> FuncValue::call(CallInfo& info) {
-    if (info.rtm.expect_arguments_size(info, amount_params()).is_error()) {
-        info.rtm.set_error("wrong amount of arguments", info.call_snippet.start());
+    if (info.rtm.expect_arguments_size(info, amount_params()).is_error())
         return { };
-    }
     info.rtm.enter_new_scope();
     // Set variables
     for (size_t i = 0; i < amount_params(); ++i)
