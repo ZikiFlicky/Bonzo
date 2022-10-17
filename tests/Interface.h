@@ -51,7 +51,7 @@ private:
         }
         ~TestDef() { }
 
-        TestType type { (TestType)80 };
+        TestType type;
         std::string code { };
         std::string expected { };
         union {
