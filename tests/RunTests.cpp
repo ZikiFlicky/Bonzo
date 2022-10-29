@@ -93,6 +93,60 @@ int main(int argc, char* argv[]) {
     i.expect_parse_error("match ", { "expected expression", { nullptr, 0, 1, 7 } });
     i.expect_parse_error("match 'string' 'another string'", { "expected newline", { nullptr, 0, 1, 16 } });
 
+    // Addition
+    i.expect_search_find("'1' + '2'", "12", { { { nullptr, 0, 1, 1 }, { nullptr, 0, 1, 2 } } } );
+    i.expect_search_find("'1' + '2'", "121212", { { { nullptr, 0, 1, 1 }, { nullptr, 0, 1, 2 } }, { { nullptr, 0, 1, 3 }, { nullptr, 0, 1, 4 } }, { { nullptr, 0, 1, 5 }, { nullptr, 0, 1, 6 } } } );
+    i.expect_search_find("'1' + '2' + '3'", " 123", { { { nullptr, 0, 1, 2 }, { nullptr, 0, 1, 4 } } } );
+
+    // Piping
+    i.expect_search_find("'1' | '2'", "1", { { { nullptr, 0, 1, 1 }, { nullptr, 0, 1, 1 } } } );
+    i.expect_search_find("'1' | '2'", "2", { { { nullptr, 0, 1, 1 }, { nullptr, 0, 1, 1 } } } );
+    i.expect_search_find("'1' | '2' | '3'", "3", { { { nullptr, 0, 1, 1 }, { nullptr, 0, 1, 1 } } } );
+
+    // Special characters
+    i.expect_search_find("Spacing", " ", { { { nullptr, 0, 1, 1 }, { nullptr, 0, 1, 1 } } } );
+    i.expect_search_find("Spacing", "\t", { { { nullptr, 0, 1, 1 }, { nullptr, 0, 1, 1 } } } );
+    i.expect_search_find("Character", "a", { { { nullptr, 0, 1, 1 }, { nullptr, 0, 1, 1 } } } );
+    i.expect_search_find("Character", "A", { { { nullptr, 0, 1, 1 }, { nullptr, 0, 1, 1 } } } );
+    i.expect_search_find("Character", "z", { { { nullptr, 0, 1, 1 }, { nullptr, 0, 1, 1 } } } );
+    i.expect_search_find("Character", "Z", { { { nullptr, 0, 1, 1 }, { nullptr, 0, 1, 1 } } } );
+    i.expect_search_find("Character", " ", { });
+    i.expect_search_find("Newline", "\n", { { { nullptr, 0, 1, 1 }, { nullptr, 0, 1, 1 } } });
+
+    // ArbitraryLength
+    i.expect_search_find("ArbitraryLength { '1' }", "", { });
+    i.expect_search_find("ArbitraryLength { '1' }", "1", { { { nullptr, 0, 1, 1 }, { nullptr, 0, 1, 1 } } });
+    i.expect_search_find("ArbitraryLength { '1' }", "111", { { { nullptr, 0, 1, 1 }, { nullptr, 0, 1, 3 } } });
+    i.expect_search_find("ArbitraryLength { '11' }", "111", { { { nullptr, 0, 1, 1 }, { nullptr, 0, 1, 2 } } });
+    i.expect_search_find("ArbitraryLength { '12' }", "12121", { { { nullptr, 0, 1, 1 }, { nullptr, 0, 1, 4 } } });
+    i.expect_search_find("'1' + ArbitraryLength { '1' }", "1", { { { nullptr, 0, 1, 1 }, { nullptr, 0, 1, 1 } } });
+    i.expect_search_find("ArbitraryLength { '1' } + '1'", "1", { { { nullptr, 0, 1, 1 }, { nullptr, 0, 1, 1 } } });
+
+    // Some
+    i.expect_search_find("Some { '1' }", "", { });
+    i.expect_search_find("'1' + Some { '1' }", "1", { });
+    i.expect_search_find("'1' + Some { '12' }", "11212", { { { nullptr, 0, 1, 1 }, { nullptr, 0, 1, 5 } } });
+    i.expect_search_find("Some { '12' } + '1'", "12121", { { { nullptr, 0, 1, 1 }, { nullptr, 0, 1, 5 } } });
+
+    // Any
+    i.expect_search_find("Any { [ '1' '2' '32' ] }", "1", { { { nullptr, 0, 1, 1 }, { nullptr, 0, 1, 1 } } });
+    i.expect_search_find("Any { [ '1' '2' '32' ] }", "2", { { { nullptr, 0, 1, 1 }, { nullptr, 0, 1, 1 } } });
+    i.expect_search_find("Any { [ '1' '2' '32' ] }", "32", { { { nullptr, 0, 1, 1 }, { nullptr, 0, 1, 2 } } });
+
+    // Separated
+    i.expect_search_find("Separated { [ ] Some { Spacing } }", " Stuff ", { });
+    i.expect_search_find("Separated { [ 'This' 'is' 'a' 'sentence' ] Some { Spacing } }", " This is a\t sentence", { { { nullptr, 0, 1, 2 }, { nullptr, 0, 1, 20 } } });
+
+    // Map
+    i.expect_search_find("Separated { Map { Some [ '+' '-' ] } '' }", "+++--", { { { nullptr, 0, 1, 1 }, { nullptr, 0, 1, 5 } } });
+
+    // NoCase
+    i.expect_search_find("NoCase { 'AbAb' }", "abAB", { { { nullptr, 0, 1, 1 }, { nullptr, 0, 1, 4 } } });
+
+    // Optional
+    i.expect_search_find("Optional { '123' } + '3'", "3", { { { nullptr, 0, 1, 1 }, { nullptr, 0, 1, 1 } }});
+    i.expect_search_find("Optional { '123' } + '3'", "1233", { { { nullptr, 0, 1, 1 }, { nullptr, 0, 1, 4 } }});
+
     i.run(test_to_run);
     return 0;
 }
