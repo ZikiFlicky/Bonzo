@@ -3,11 +3,9 @@
 #include "abstract/CallableValue.h"
 #include <utils/ErrorOr.h>
 
-class Interpreter;
-
 class ExtFuncValue : public CallableValue {
 public:
-    typedef ErrorOr<std::shared_ptr<Value>> (Interpreter::*FuncDef)(CallInfo& info);
+    typedef ErrorOr<std::shared_ptr<Value>> (RuntimeManager::*FuncDef)(CallInfo& info);
 
     ExtFuncValue(std::string name, FuncDef func)
         : CallableValue(name), m_func(func) { }

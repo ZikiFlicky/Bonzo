@@ -54,9 +54,9 @@ struct RuntimeError {
 class RuntimeManager final {
     friend class Interpreter;
 public:
-    RuntimeManager(Interpreter& interpreter) : m_interpreter(interpreter), m_operation_type(OperationType::GenerateRegex) { }
-    RuntimeManager(Interpreter& interpreter, std::string compare_text)
-        : m_interpreter(interpreter), m_operation_type(OperationType::MatchAgainst), m_compare_text(compare_text) { }
+    RuntimeManager() : m_operation_type(OperationType::GenerateRegex) { }
+    RuntimeManager(std::string compare_text)
+        : m_operation_type(OperationType::MatchAgainst), m_compare_text(compare_text) { }
     ~RuntimeManager() = default;
 
     OperationType operation_type() { return m_operation_type; }
@@ -84,7 +84,6 @@ public:
     ErrorOr<void> verify_matchable(std::vector<std::shared_ptr<Value>> values);
 
 private:
-    Interpreter& m_interpreter;
     bool m_is_output_buffered { false };
     std::string m_output_buffer;
     OperationType m_operation_type;
@@ -100,6 +99,14 @@ private:
     std::string output_buffer() { return m_output_buffer; }
     void set_buffered() { m_is_output_buffered = true; }
     std::vector<TextSnippet>& match_snippets() { return m_match_snippets; }
+
+    ErrorOr<std::shared_ptr<Value>> builtin_function_arbitrary_length(CallInfo& info);
+    ErrorOr<std::shared_ptr<Value>> builtin_function_some(CallInfo& info);
+    ErrorOr<std::shared_ptr<Value>> builtin_function_any(CallInfo& info);
+    ErrorOr<std::shared_ptr<Value>> builtin_function_separated(CallInfo& info);
+    ErrorOr<std::shared_ptr<Value>> builtin_function_map(CallInfo& info);
+    ErrorOr<std::shared_ptr<Value>> builtin_function_nocase(CallInfo& info);
+    ErrorOr<std::shared_ptr<Value>> builtin_function_optional(CallInfo& info);
 };
 
 class Interpreter final {
@@ -138,14 +145,6 @@ private:
     std::shared_ptr<Expr> m_expr;
 
     void set_base_variables();
-
-    ErrorOr<std::shared_ptr<Value>> builtin_function_arbitrary_length(CallInfo& info);
-    ErrorOr<std::shared_ptr<Value>> builtin_function_some(CallInfo& info);
-    ErrorOr<std::shared_ptr<Value>> builtin_function_any(CallInfo& info);
-    ErrorOr<std::shared_ptr<Value>> builtin_function_separated(CallInfo& info);
-    ErrorOr<std::shared_ptr<Value>> builtin_function_map(CallInfo& info);
-    ErrorOr<std::shared_ptr<Value>> builtin_function_nocase(CallInfo& info);
-    ErrorOr<std::shared_ptr<Value>> builtin_function_optional(CallInfo& info);
 
     ErrorOr<void> run_instructions();
     ErrorOr<void> run_expr();

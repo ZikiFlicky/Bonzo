@@ -15,12 +15,12 @@
 #include <iostream>
 
 Interpreter::Interpreter()
-    : m_rtm(*this) {
+    : m_rtm() {
     set_base_variables();
 }
 
 Interpreter::Interpreter(std::string compare_text)
-    : m_rtm(*this, compare_text) {
+    : m_rtm(compare_text) {
     set_base_variables();
 }
 
@@ -33,13 +33,13 @@ void Interpreter::set_base_variables() {
         std::string name;
         ExtFuncValue::FuncDef def;
     } func_defs[] =  {
-        { "ArbitraryLength", &Interpreter::builtin_function_arbitrary_length },
-        { "Some", &Interpreter::builtin_function_some },
-        { "Any", &Interpreter::builtin_function_any },
-        { "Separated", &Interpreter::builtin_function_separated },
-        { "Map", &Interpreter::builtin_function_map },
-        { "NoCase", &Interpreter::builtin_function_nocase },
-        { "Optional", &Interpreter::builtin_function_optional }
+        { "ArbitraryLength", &RuntimeManager::builtin_function_arbitrary_length },
+        { "Some", &RuntimeManager::builtin_function_some },
+        { "Any", &RuntimeManager::builtin_function_any },
+        { "Separated", &RuntimeManager::builtin_function_separated },
+        { "Map", &RuntimeManager::builtin_function_map },
+        { "NoCase", &RuntimeManager::builtin_function_nocase },
+        { "Optional", &RuntimeManager::builtin_function_optional }
     };
     // Set base functions
     for (auto def : func_defs) {
@@ -96,73 +96,73 @@ ErrorOr<void> Interpreter::run() {
     }
 }
 
-ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_arbitrary_length(CallInfo& info) {
-    if (m_rtm.expect_arguments_size(info, 1).is_error())
+ErrorOr<std::shared_ptr<Value>> RuntimeManager::builtin_function_arbitrary_length(CallInfo& info) {
+    if (expect_arguments_size(info, 1).is_error())
         return { };
     auto arg = info.arguments[0];
-    if (m_rtm.verify_matchable(arg).is_error())
+    if (verify_matchable(arg).is_error())
         return { };
     return std::shared_ptr<Value>(new ArbitraryLengthValue(arg.value));
 }
 
-ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_some(CallInfo& info) {
-    if (m_rtm.expect_arguments_size(info, 1).is_error())
+ErrorOr<std::shared_ptr<Value>> RuntimeManager::builtin_function_some(CallInfo& info) {
+    if (expect_arguments_size(info, 1).is_error())
         return { };
-    if (m_rtm.verify_matchable(info.arguments[0]).is_error())
+    if (verify_matchable(info.arguments[0]).is_error())
         return { };
     return std::shared_ptr<Value>(new SomeValue(info.arguments[0].value));
 }
 
-ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_any(CallInfo& info) {
-    if (m_rtm.expect_arguments_size(info, 1).is_error())
+ErrorOr<std::shared_ptr<Value>> RuntimeManager::builtin_function_any(CallInfo& info) {
+    if (expect_arguments_size(info, 1).is_error())
         return { };
     auto arg1 = info.arguments[0];
     if (!arg1.value->is_tuple()) {
-        m_rtm.set_error("expected tuple", arg1.snippet.start());
+        set_error("expected tuple", arg1.snippet.start());
         return { };
     }
     auto tuple = arg1.value->tuple();
-    if (m_rtm.verify_matchable(tuple->values()).is_error())
+    if (verify_matchable(tuple->values()).is_error())
         return { };
     return std::shared_ptr<Value>(new OrValue(tuple->values()));
 }
 
-ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_separated(CallInfo& info) {
-    if (m_rtm.expect_arguments_size(info, 2).is_error())
+ErrorOr<std::shared_ptr<Value>> RuntimeManager::builtin_function_separated(CallInfo& info) {
+    if (expect_arguments_size(info, 2).is_error())
         return { };
     auto& arg1 = info.arguments[0];
     if (!arg1.value->is_tuple()) {
-        m_rtm.set_error("expected tuple argument", arg1.snippet.start());
+        set_error("expected tuple argument", arg1.snippet.start());
         return { };
     }
     auto tuple = arg1.value->tuple();
-    if (m_rtm.verify_matchable(tuple->values()).is_error())
+    if (verify_matchable(tuple->values()).is_error())
         return { };
     auto& arg2 = info.arguments[1];
-    if (m_rtm.verify_matchable(arg2).is_error())
+    if (verify_matchable(arg2).is_error())
         return { };
     return std::shared_ptr<Value>(new SeparatedValue(tuple->values(), arg2.value));
 }
 
-ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_map(CallInfo& info) {
-    if (m_rtm.expect_arguments_size(info, 2).is_error())
+ErrorOr<std::shared_ptr<Value>> RuntimeManager::builtin_function_map(CallInfo& info) {
+    if (expect_arguments_size(info, 2).is_error())
         return { };
     auto& arg1 = info.arguments[0];
     if (!arg1.value->is_callable()) {
         // FIXME: Should be the argument's snippet
-        m_rtm.set_error("expected callable argument", arg1.snippet.start());
+        set_error("expected callable argument", arg1.snippet.start());
         return { };
     }
     auto callable = arg1.value->callable();
     auto& arg2 = info.arguments[1];
     if (!arg2.value->is_tuple()) {
-        m_rtm.set_error("expected tuple argument", arg2.snippet.start());
+        set_error("expected tuple argument", arg2.snippet.start());
         return { };
     }
     auto tuple = arg2.value->tuple();
     std::vector<std::shared_ptr<Value>> mapped_values;
     for (auto value : tuple->values()) {
-        CallInfo call_info = { { { value, { } } }, { }, m_rtm };
+        CallInfo call_info = { { { value, { } } }, { }, *this };
         auto maybe_mapped = callable->call(call_info);
         if (maybe_mapped.is_error())
             return { };
@@ -172,14 +172,14 @@ ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_map(CallInfo& info
     return std::shared_ptr<Value>(new TupleValue(mapped_values));
 }
 
-ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_nocase(CallInfo& info) {
-    if (m_rtm.expect_arguments_size(info, 1).is_error())
+ErrorOr<std::shared_ptr<Value>> RuntimeManager::builtin_function_nocase(CallInfo& info) {
+    if (expect_arguments_size(info, 1).is_error())
         return { };
 
     auto& arg1 = info.arguments[0];
     // Verify we got a string
     if (!arg1.value->is_string()) {
-        m_rtm.set_error("expected string value", info.call_snippet.start());
+        set_error("expected string value", info.call_snippet.start());
         return { };
     }
     auto string = arg1.value->string();
@@ -206,12 +206,12 @@ ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_nocase(CallInfo& i
     return std::shared_ptr<Value>(new SumValue(summed_values));
 }
 
-ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_optional(CallInfo& info) {
-    if (m_rtm.expect_arguments_size(info, 1).is_error())
+ErrorOr<std::shared_ptr<Value>> RuntimeManager::builtin_function_optional(CallInfo& info) {
+    if (expect_arguments_size(info, 1).is_error())
         return { };
 
     auto& arg1 = info.arguments[0];
-    if (m_rtm.verify_matchable(arg1).is_error())
+    if (verify_matchable(arg1).is_error())
         return { };
     auto matchable = arg1.value;
 
@@ -295,7 +295,7 @@ ErrorOr<void> RuntimeManager::expect_arguments_size(CallInfo& info, size_t size)
 }
 
 ErrorOr<std::shared_ptr<Value>> RuntimeManager::call_builtin(ExtFuncValue::FuncDef func, CallInfo& info) {
-    return (m_interpreter.*func)(info);
+    return (this->*func)(info);
 }
 
 ErrorOr<void> RuntimeManager::verify_matchable(ValueSnippetPair value) {
