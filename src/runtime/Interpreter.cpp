@@ -1,4 +1,5 @@
 #include "Interpreter.h"
+#include <ast/exprs/abstract/Expr.h>
 #include <runtime/values/ExtFuncValue.h>
 #include <runtime/values/TupleValue.h>
 #include <runtime/values/OrValue.h>
@@ -62,13 +63,37 @@ void Interpreter::show_error() {
     m_rtm.print(error().to_string());
 }
 
-ErrorOr<void> Interpreter::run() {
+ErrorOr<void> Interpreter::run_instructions() {
     for (auto instruction : m_instructions) {
         // Quit if errored
         if (instruction->run(m_rtm).is_error())
             return false;
     }
     return true;
+}
+
+ErrorOr<void> Interpreter::run_expr() {
+    assert(m_rtm.operation_type() == MatchAgainst);
+    // Evaluate expr into a value
+    auto maybe_value = m_expr->eval(m_rtm);
+    if (maybe_value.is_error())
+        return false;
+    // Try to match
+    auto value = maybe_value.value();
+    if (m_rtm.match_against({ value, m_expr->snippet() }).is_error())
+        return false;
+    return true;
+}
+
+ErrorOr<void> Interpreter::run() {
+    switch (m_input_type) {
+    case InstructionsInput:
+        return run_instructions();
+    case ExprInput:
+        return run_expr();
+    default:
+        assert(0);
+    }
 }
 
 ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_arbitrary_length(CallInfo& info) {
@@ -192,6 +217,16 @@ ErrorOr<std::shared_ptr<Value>> Interpreter::builtin_function_optional(CallInfo&
 
     // Return sum value
     return std::shared_ptr<Value>(new OptionalValue(matchable));
+}
+
+ErrorOr<void> RuntimeManager::match_against(ValueSnippetPair pair) {
+    if (!pair.value->can_be_matched()) {
+        set_error("input not generable", pair.snippet.start());
+        return false;
+    }
+    SearchProvider provider(compare_text());
+    m_match_snippets = provider.find_from_value(pair.value);
+    return true;
 }
 
 void RuntimeManager::set_error(std::string error_message, TextPosition position) {

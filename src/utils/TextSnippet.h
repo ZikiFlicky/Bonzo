@@ -17,6 +17,9 @@ public:
         assert(end_index >= start_index);
         return end_index - start_index;
     }
+    bool similar_to(TextSnippet& snippet) {
+        return start().similar_to(snippet.start()) && end().similar_to(snippet.end());
+    }
 
 private:
     TextPosition m_start, m_end;

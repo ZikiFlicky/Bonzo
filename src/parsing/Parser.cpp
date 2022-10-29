@@ -22,6 +22,19 @@ ErrorOr<bool> Parser::lex() {
     return maybe_result.value();
 }
 
+ErrorOr<bool> Parser::tokens_left() {
+    auto backtrack = position();
+    auto maybe_lex = lex();
+    if (maybe_lex.is_error())
+        return false;
+    bool lexed = maybe_lex.value();
+    if (lexed) {
+        load_state(backtrack);
+        return true;
+    }
+    return false;
+}
+
 void Parser::set_error(std::string error_message) {
     m_error = { error_message, position() };
     m_has_errored = true;
@@ -504,11 +517,13 @@ ErrorOr<std::shared_ptr<Instruction>> Parser::parse_instruction() {
     return std::shared_ptr<Instruction>(nullptr);
 }
 
-ErrorOr<void> Parser::parse_all() {
+ErrorOr<void> Parser::parse_instructions_stream() {
+    assert(m_parse_type == ParseInstructions);
     // We don't care whether there actually was a newline
     if (match_newline(false).is_error())
         return false;
 
+    m_instructions = {};
     std::shared_ptr<Instruction> instruction;
     for (;;) {
         auto maybe_instruction = parse_instruction();
@@ -526,6 +541,44 @@ ErrorOr<void> Parser::parse_all() {
     }
 
     return true;
+}
+
+ErrorOr<void> Parser::parse_expr_stream() {
+    assert(m_parse_type == ParseExpr);
+    auto maybe_expr = parse_expr();
+    if (maybe_expr.is_error())
+        return false;
+
+    auto expr = maybe_expr.value();
+    // If failed to parse an expression
+    if (!expr) {
+        set_error("couldn't parse expr");
+        return false;
+    }
+
+    // Check for additional tokens after the expr
+    auto maybe_tokens_left = tokens_left();
+    if (maybe_tokens_left.is_error())
+        return false;
+    // If this wasn't the end of the file
+    if (maybe_tokens_left.value()) {
+        set_error("unexpected token");
+        return false;
+    }
+
+    m_expr = expr;
+    return true;
+}
+
+ErrorOr<void> Parser::parse_all() {
+    switch (m_parse_type) {
+    case ParseInstructions:
+        return parse_instructions_stream();
+    case ParseExpr:
+        return parse_expr_stream();
+    default:
+        assert(0);
+    }
 }
 
 ParsingError Parser::error() {

@@ -1,18 +1,6 @@
 #include "Interface.h"
 #include <parsing/Parser.h>
 
-void TestInterface::expect_output(std::string stream, std::string expect) {
-    m_test_defs.push_back({ stream, expect });
-}
-
-void TestInterface::expect_parse_error(std::string stream, ParsingError error) {
-    m_test_defs.push_back({ stream, error });
-}
-
-void TestInterface::expect_runtime_error(std::string stream, std::string expect, RuntimeError error) {
-    m_test_defs.push_back({ stream, expect, error });
-}
-
 void TestInterface::run_output_test(std::string stream, std::string expect) {
     Parser parser(stream);
     std::string output;
@@ -53,7 +41,7 @@ void TestInterface::run_parse_error_test(std::string stream, ParsingError expect
     }
 }
 
-void TestInterface::run_runtime_error_test(std::string stream, std::string expect_output, RuntimeError expect_error) {
+void TestInterface::run_runtime_error_test(std::string stream, std::string expect_output, RuntimeError& expect_error) {
     Parser parser(stream);
     if (parser.parse_all().is_error()) {
         show_test_no_match_runtime_error(parser.error(), expect_output, expect_error);
@@ -73,6 +61,29 @@ void TestInterface::run_runtime_error_test(std::string stream, std::string expec
             } else {
                 show_test_no_match_runtime_error(output, error, expect_output, expect_error);
             }
+        }
+    }
+}
+
+void TestInterface::run_search_test(std::string stream, std::string match_against, std::vector<TextSnippet> expected_snippets) {
+    Parser parser(stream, Parser::ParseType::ParseExpr);
+    if (parser.parse_all().is_error()) {
+        show_test_no_match_snippets(parser.error(), stream);
+    } else {
+        // Create buffered interpreter and run it
+        Interpreter interpreter(match_against);
+        interpreter.set_expr(parser.expr());
+        interpreter.run();
+        if (interpreter.has_errored()) {
+            show_test_no_match_snippets(interpreter.error(), stream);
+        } else {
+            // TODO: Have new TextSnippet class which is just for matched snippets
+            // Check if snippets match
+            auto& found_snippets = interpreter.match_snippets();
+            if (snippets_match(found_snippets, expected_snippets))
+                show_test_success();
+            else
+                show_test_no_match_snippets(found_snippets, stream, match_against, expected_snippets);
         }
     }
 }
@@ -135,6 +146,39 @@ void TestInterface::show_test_no_match_runtime_error(std::string output, Runtime
     m_failed_tests.push_back(m_test_number);
 }
 
+void TestInterface::show_test_no_match_snippets(ParsingError error, std::string expression) {
+    std::cout << "Test " << m_test_number << "/" << amount_tests() << " failed" << std::endl \
+        << "Expression " << expression << std::endl \
+        << "errored with:" << std::endl \
+        << error.to_string() << std::endl;
+    m_failed_tests.push_back(m_test_number);
+}
+
+void TestInterface::show_test_no_match_snippets(RuntimeError error, std::string expression) {
+    std::cout << "Test " << m_test_number << "/" << amount_tests() << " failed" << std::endl \
+        << "Expression " << expression << std::endl \
+        << "errored with:" << std::endl \
+        << error.to_string() << std::endl;
+    m_failed_tests.push_back(m_test_number);
+}
+
+void TestInterface::show_test_no_match_snippets(std::vector<TextSnippet>& output, std::string expression, std::string match_against, std::vector<TextSnippet>& expected) {
+    // Align end of snippets to their prev position to look like the the printed snippets
+    std::vector<TextSnippet> aligned_output_snippets;
+    for (auto& s : output)
+        aligned_output_snippets.push_back({ s.start(), s.end().previous_position() });
+
+    std::cout << "Test " << m_test_number << "/" << amount_tests() << " failed" << std::endl \
+        << "Expression " << expression << std::endl \
+        << "against:" << std::endl \
+        << match_against << std::endl \
+        << "expected matches:" << std::endl \
+        << matches_to_string(expected) << std::endl \
+        << "but got:" << std::endl \
+        << matches_to_string(aligned_output_snippets) << std::endl;
+    m_failed_tests.push_back(m_test_number);
+}
+
 void TestInterface::run_test(TestDef& def) {
     switch (def.type) {
     case TestOutput:
@@ -146,9 +190,28 @@ void TestInterface::run_test(TestDef& def) {
     case TestRuntimeError:
         run_runtime_error_test(def.code, def.expected, def.runtime_error);
         break;
+    case TestMatch:
+        run_search_test(def.code, def.match_against, def.expected_snippets);
+        break;
     default:
         assert(0);
     }
+}
+
+void TestInterface::expect_output(std::string stream, std::string expect) {
+    m_test_defs.push_back({ stream, expect });
+}
+
+void TestInterface::expect_parse_error(std::string stream, ParsingError error) {
+    m_test_defs.push_back({ stream, error });
+}
+
+void TestInterface::expect_runtime_error(std::string stream, std::string expect, RuntimeError error) {
+    m_test_defs.push_back({ stream, expect, error });
+}
+
+void TestInterface::expect_search_find(std::string stream, std::string match_against, std::vector<TextSnippet> snippets) {
+    m_test_defs.push_back({ stream, match_against, snippets });
 }
 
 void TestInterface::run(size_t test) {
@@ -177,4 +240,32 @@ void TestInterface::run(size_t test) {
         m_test_number = test;
         run_test(m_test_defs[test - 1]);
     }
+}
+
+std::string TestInterface::matches_to_string(std::vector<TextSnippet>& snippets) {
+    std::string as_string { };
+    for (size_t i = 0; i < snippets.size(); ++i) {
+        if (i != 0)
+            as_string += "\n";
+        auto start = snippets[i].start();
+        auto end = snippets[i].end();
+        as_string += start.to_string() + " -> " + end.to_string();
+    }
+    return as_string;
+}
+
+bool TestInterface::snippets_match(std::vector<TextSnippet>& snippets, std::vector<TextSnippet>& expect) {
+    if (snippets.size() != expect.size())
+        return false;
+
+    auto amount_snippets = snippets.size();
+    for (size_t i = 0; i < amount_snippets; ++i) {
+        // Realign to look like the expected_snippet
+        TextSnippet realigned_found_snippet = { snippets[i].start(), snippets[i].end().previous_position() };
+        assert(realigned_found_snippet.start().similar_to(expect[i].start()));
+        if (!realigned_found_snippet.similar_to(expect[i]))
+            return false;
+    }
+
+    return true;
 }
