@@ -8,6 +8,19 @@ static void show_help() {
     std::cout << "  --test TEST_NUMBER: run a specific test" << std::endl;
 }
 
+static bool string_to_positive_number(char* string, size_t& number) {
+    char* number_end;
+    long result = std::strtol(string, &number_end, 10);
+    assert(number_end);
+    // If number_end is not the end of the string
+    // or if it's the start of the string, then the string is invalid
+    if (number_end != string && *number_end == '\0' && result > 0) {
+        number = result;
+        return true;
+    }
+    return false;
+}
+
 int main(int argc, char* argv[]) {
     size_t test_to_run = 0; // 0 is default and just means we run all of the files
     if (argc > 1) {
@@ -18,13 +31,7 @@ int main(int argc, char* argv[]) {
         } else if (arg1 == "--test") {
             if (argc > 2) {
                 auto arg2 = argv[2];
-                char* number_end;
-                long arg_test_number = std::strtol(arg2, &number_end, 10);
-                assert(number_end);
-                // String valid
-                if (number_end != arg2 && *number_end == '\0' &&  arg_test_number > 0) {
-                    test_to_run = arg_test_number;
-                } else {
+                if (!string_to_positive_number(arg2, test_to_run)) {
                     std::cout << "Invalid 2nd argument, expected unsigned integer > 0" << std::endl;
                     return 1;
                 }
