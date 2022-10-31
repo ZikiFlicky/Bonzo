@@ -32,6 +32,7 @@ set(BASE_SOURCES
     src/runtime/values/StringValue.cpp
     src/runtime/Interpreter.cpp
     src/runtime/MatchHandler.cpp
+    src/runtime/RuntimeManager.cpp
     src/runtime/Scope.cpp
 )
 

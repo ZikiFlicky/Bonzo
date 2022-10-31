@@ -3,6 +3,8 @@
 #include "abstract/CallableValue.h"
 #include <utils/ErrorOr.h>
 
+class RuntimeManager;
+
 class ExtFuncValue : public CallableValue {
 public:
     typedef ErrorOr<std::shared_ptr<Value>> (RuntimeManager::*FuncDef)(CallInfo& info);
